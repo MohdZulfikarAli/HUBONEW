@@ -74,7 +74,11 @@ public class MainActivity extends AppCompatActivity {
 
     View emailView;
 
+    boolean actionflag = false;
+
     boolean bottomSheetFlag = true;
+
+    AlertDialog yesOrNoDialog;
 
     String[] persons = {"Dana AlSani", "Fathima Farhana Mohammed", "Harish Abdul Wahab", "Jovian D Cunha", "Ritin Nair", "Mohammed Shahzad", "Sukesh Ramdas", "Vivek Isaac"};
     String[] emails = {"danaalsani@devlacus.com", "fatimafarhanamohammed@devlacus.com", "harishabdulwahab@devlacus.com", "joviandcunha@devlacus.com", "ritinnair@devlacus.com", "mohammedshahzad@devlacus.com", "sukeshramdas@devlacus.com", "vivekisaac@devlacus.com"};
@@ -146,6 +150,7 @@ public class MainActivity extends AppCompatActivity {
                     public void onCompletion(MediaPlayer mediaPlayer) {
 
                         if (flag) {
+                            intent.putExtra(RecognizerIntent.EXTRA_PROMPT,"Who would you like to meet?");
                             showPersonListBottomSheet();
                             startRecognition(intent);
                             flag = false;
@@ -169,6 +174,7 @@ public class MainActivity extends AppCompatActivity {
         intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
+        intent.putExtra(RecognizerIntent.EXTRA_PROMPT,"Hint: meet a person");
     }
     private void startRecognition(Intent intent)
     {
@@ -193,7 +199,7 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-        AlertDialog yesOrNoDialog = builder.create();
+        yesOrNoDialog = builder.create();
         yesOrNoDialog.setCanceledOnTouchOutside(false);
         if(dialogFlag)
         {
@@ -284,6 +290,8 @@ public class MainActivity extends AppCompatActivity {
 
         meet.setVisibility(View.GONE);
         delivery.setVisibility(View.GONE);
+
+        bottomSheetFlag = true;
 
         // Create a bottom sheet dialog
         bottomSheetDialog = new BottomSheetDialog(this);
@@ -389,13 +397,18 @@ public class MainActivity extends AppCompatActivity {
          if(result.contains("meet")) {
              String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.meet;
              playVideo(videoPath);
+             bottomSheetFlag = false;
+             if(bottomSheetDialog != null)
+                 bottomSheetDialog.dismiss();
+             if(yesOrNoDialog != null)
+                 yesOrNoDialog.dismiss();
              meet.performClick();
          }
-         else if(result.contains("yes"))
+         else if(actionflag && result.contains("yes"))
          {
              buttonYes.performClick();
          }
-         else if(result.contains("no"))
+         else if(actionflag && result.contains("no"))
          {
              buttonNo.performClick();
          }
@@ -406,87 +419,60 @@ public class MainActivity extends AppCompatActivity {
         else if(result.contains("dana"))
         {
             String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.dana;
-            playVideo(videoPath);
-            bottomSheetFlag = false;
-            bottomSheetDialog.dismiss();
-            selectedPerson = "Dana AlSani";
-            delayedShowDialog();
-            setEmail(action);
+            startVoiceAction(videoPath,"Dana AlSani");
+
         }
         else if(result.contains("fatima"))
         {
             String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.fatima;
-            playVideo(videoPath);
-            bottomSheetFlag = false;
-            bottomSheetDialog.dismiss();
-            selectedPerson = "Fathima Farhana Mohammed";
-            delayedShowDialog();
-            setEmail(action);
+            startVoiceAction(videoPath,"Fathima Farhana Mohammed");
         }
         else if(result.contains("harish"))
         {
             String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.harish;
-            playVideo(videoPath);
-            bottomSheetFlag = false;
-            bottomSheetDialog.dismiss();
-            selectedPerson = "Harish Abdul Wahab";
-            delayedShowDialog();
-            setEmail(action);
+            startVoiceAction(videoPath,"Harish Abdul Wahab");
         }
         else if(result.contains("jovian"))
         {
             String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.jovian;
-            playVideo(videoPath);
-            bottomSheetFlag = false;
-            bottomSheetDialog.dismiss();
-            selectedPerson = "Jovian D Cunha";
-            delayedShowDialog();
-            setEmail(action);
+            startVoiceAction(videoPath,"Jovian D Cunha");
+
         }
         else if(result.contains("rithin") || result.contains("nair"))
         {
             String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.ritin;
-            playVideo(videoPath);
-            bottomSheetFlag = false;
-            bottomSheetDialog.dismiss();
-            selectedPerson = "Ritin Nair";
-            delayedShowDialog();
-            setEmail(action);
+            startVoiceAction(videoPath,"Ritin Nair");
         }
         else if(result.contains("shahzad"))
         {
             String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.shezad;
-            playVideo(videoPath);
-            bottomSheetFlag = false;
-            bottomSheetDialog.dismiss();
-            selectedPerson = "Mohammed Shahzad";
-            delayedShowDialog();
-            setEmail(action);
+            startVoiceAction(videoPath,"Mohammed Shahzad");
         }
         else if(result.contains("sukesh"))
         {
             String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.sukesh;
-            playVideo(videoPath);
-            bottomSheetFlag = false;
-            bottomSheetDialog.dismiss();
-            selectedPerson = "Sukesh Ramdas";
-            delayedShowDialog();
-            setEmail(action);
+            startVoiceAction(videoPath,"Sukesh Ramdas");
         }
         else if(result.contains("vivek"))
         {
             String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.vivek;
-            playVideo(videoPath);
-            bottomSheetFlag = false;
-            bottomSheetDialog.dismiss();
-            selectedPerson = "Vivek Isaac";
-            delayedShowDialog();
-            setEmail(action);
+            startVoiceAction(videoPath,"Vivek Isaac");
         }
          else {
              startRecognition(intent);
          }
 
+    }
+
+    public void startVoiceAction(String videoPath,String name)
+    {
+        playVideo(videoPath);
+        bottomSheetFlag = false;
+        actionflag = true;
+        bottomSheetDialog.dismiss();
+        selectedPerson = name;
+        delayedShowDialog();
+        setEmail(selectedPerson);
     }
 
     private void delayedShowDialog() {
@@ -527,7 +513,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void setEmail(String name) {
         for (int i = 0; i < persons.length; i++) {
-            if (persons[i].toLowerCase().contains(name)) {
+            if (persons[i].equalsIgnoreCase(name)) {
                 email = emails[i];
                 break;
             }
