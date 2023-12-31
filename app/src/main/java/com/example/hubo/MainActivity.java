@@ -178,6 +178,7 @@ public class MainActivity extends AppCompatActivity {
     public void showDialog() {
 
         flagControl = false;
+
         // Create a custom dialog layout
         View dialogView = getLayoutInflater().inflate(R.layout.custom_dialog_box, null);
 
@@ -230,7 +231,6 @@ public class MainActivity extends AppCompatActivity {
 
     public void showEmailDialog() {
 
-        dialogFlag = true;
         // Inflate the dialog view
 
         // Set up the AlertDialog
@@ -295,7 +295,6 @@ public class MainActivity extends AppCompatActivity {
             public void onDismiss(DialogInterface dialogInterface) {
                 if(bottomSheetFlag)
                   bottomSheetDialog.show();
-                bottomSheetFlag = true;
             }
         });
 
@@ -390,7 +389,7 @@ public class MainActivity extends AppCompatActivity {
          if(result.contains("meet")) {
              String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.meet;
              playVideo(videoPath);
-             showPersonListBottomSheet();
+             meet.performClick();
          }
          else if(result.contains("yes"))
          {
@@ -408,15 +407,17 @@ public class MainActivity extends AppCompatActivity {
         {
             String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.dana;
             playVideo(videoPath);
+            bottomSheetFlag = false;
             bottomSheetDialog.dismiss();
             selectedPerson = "Dana AlSani";
-            showDialog();
+            delayedShowDialog();
             setEmail(action);
         }
         else if(result.contains("fatima"))
         {
             String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.fatima;
             playVideo(videoPath);
+            bottomSheetFlag = false;
             bottomSheetDialog.dismiss();
             selectedPerson = "Fathima Farhana Mohammed";
             delayedShowDialog();
@@ -426,6 +427,7 @@ public class MainActivity extends AppCompatActivity {
         {
             String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.harish;
             playVideo(videoPath);
+            bottomSheetFlag = false;
             bottomSheetDialog.dismiss();
             selectedPerson = "Harish Abdul Wahab";
             delayedShowDialog();
@@ -435,15 +437,17 @@ public class MainActivity extends AppCompatActivity {
         {
             String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.jovian;
             playVideo(videoPath);
+            bottomSheetFlag = false;
             bottomSheetDialog.dismiss();
             selectedPerson = "Jovian D Cunha";
             delayedShowDialog();
             setEmail(action);
         }
-        else if(result.contains("ritin"))
+        else if(result.contains("rithin") || result.contains("nair"))
         {
             String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.ritin;
             playVideo(videoPath);
+            bottomSheetFlag = false;
             bottomSheetDialog.dismiss();
             selectedPerson = "Ritin Nair";
             delayedShowDialog();
@@ -453,6 +457,7 @@ public class MainActivity extends AppCompatActivity {
         {
             String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.shezad;
             playVideo(videoPath);
+            bottomSheetFlag = false;
             bottomSheetDialog.dismiss();
             selectedPerson = "Mohammed Shahzad";
             delayedShowDialog();
@@ -462,6 +467,7 @@ public class MainActivity extends AppCompatActivity {
         {
             String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.sukesh;
             playVideo(videoPath);
+            bottomSheetFlag = false;
             bottomSheetDialog.dismiss();
             selectedPerson = "Sukesh Ramdas";
             delayedShowDialog();
@@ -471,6 +477,7 @@ public class MainActivity extends AppCompatActivity {
         {
             String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.vivek;
             playVideo(videoPath);
+            bottomSheetFlag = false;
             bottomSheetDialog.dismiss();
             selectedPerson = "Vivek Isaac";
             delayedShowDialog();
