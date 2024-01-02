@@ -6,7 +6,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Handler;
@@ -17,16 +16,14 @@ import android.content.pm.PackageManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
-import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
-import android.widget.MediaController;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.VideoView;
 
 import com.google.android.material.bottomsheet.BottomSheetDialog;
@@ -39,7 +36,7 @@ import java.util.Objects;
 import android.app.AlertDialog;
 
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements ApiCaller.ApiCallback {
 
     Button meet;
 
@@ -47,7 +44,6 @@ public class MainActivity extends AppCompatActivity {
 
     boolean flag = true;
 
-    boolean dialogFlag = true;
 
     VideoView video;
 
@@ -78,12 +74,21 @@ public class MainActivity extends AppCompatActivity {
 
     boolean bottomSheetFlag = true;
 
+    boolean dialogFlag;
+
     AlertDialog yesOrNoDialog;
 
-    String[] persons = {"Dana AlSani", "Fathima Farhana Mohammed", "Harish Abdul Wahab", "Jovian D Cunha", "Ritin Nair", "Mohammed Shahzad", "Sukesh Ramdas", "Vivek Isaac"};
+    private ApiCaller apiCaller;
+
+    boolean restartFlag;
+
+    String[] persons = {"Dana AlSani", "Fatima Farhana Mohammed", "Harish Abdul Wahab", "Jovian D Cunha", "Ritin Nair", "Mohammed Shahzad", "Sukesh Ramdas", "Vivek Isaac"};
     String[] emails = {"danaalsani@devlacus.com", "fatimafarhanamohammed@devlacus.com", "harishabdulwahab@devlacus.com", "joviandcunha@devlacus.com", "ritinnair@devlacus.com", "mohammedshahzad@devlacus.com", "sukeshramdas@devlacus.com", "vivekisaac@devlacus.com"};
 
+    String[] employee_id = {"e10000fd-942b-4c08-8d17-02732b96a2b8","9f94e975-5727-45ab-b155-b2672d1605df","f90ec33b-e85c-4dca-b434-2325c3385b6c","bbac478c-ff0f-40db-b285-35c8ac8c38ae","1ed73db4-0f2f-43cf-8b46-c3bf3fa4b46c","e9e5d5de-593f-48c0-b6bf-a3396d435c1d","6860896b-3d76-4216-a293-5238a39f753c","261daf56-0287-43fe-9c13-93f295a3c371"};
 
+
+    String emp_id;
     private final ActivityResultLauncher<Intent> activityResultLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             result -> {
@@ -201,12 +206,6 @@ public class MainActivity extends AppCompatActivity {
 
         yesOrNoDialog = builder.create();
         yesOrNoDialog.setCanceledOnTouchOutside(false);
-        if(dialogFlag)
-        {
-            yesOrNoDialog.show();
-            dialogFlag = false;
-        }
-
 
         intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Say Yes or No");
         startRecognition(intent);
@@ -225,12 +224,13 @@ public class MainActivity extends AppCompatActivity {
         buttonNo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                dialogFlag = true;
                 yesOrNoDialog.dismiss();
                 meet.performClick();
                 intent.removeExtra(RecognizerIntent.EXTRA_PROMPT);
             }
         });
+
+        yesOrNoDialog.show();
     }
 
 
@@ -238,6 +238,9 @@ public class MainActivity extends AppCompatActivity {
     public void showEmailDialog() {
 
         // Inflate the dialog view
+        if (emailView.getParent() != null) {
+            ((ViewGroup) emailView.getParent()).removeView(emailView);
+        }
 
         // Set up the AlertDialog
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -263,8 +266,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 // Handle the submit button click
-                String enteredName = Objects.requireNonNull(name.getText()).toString();
-                String enteredPurpose = Objects.requireNonNull(purpose.getText()).toString();
+                String guestName = Objects.requireNonNull(name.getText()).toString();
+                String purposeOfVisit = Objects.requireNonNull(purpose.getText()).toString();
 
                 hideKeyboard(purpose);
 
@@ -273,8 +276,9 @@ public class MainActivity extends AppCompatActivity {
                 String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.checking;
                 playVideo(videoPath);
 
-                if(!enteredName.isEmpty() && !enteredPurpose.isEmpty()) {
-                    sendEmail(email, enteredPurpose, enteredName);
+                if(!guestName.isEmpty() && !purposeOfVisit.isEmpty()) {
+                    Handler handler = new Handler(Looper.getMainLooper());
+                    handler.postDelayed(() -> sendEmail(emp_id,"d3B83VBZFJCaprPr", purposeOfVisit, guestName), 2000);
                     emailFormAlert.dismiss();
                 }
                 else {
@@ -318,12 +322,15 @@ public class MainActivity extends AppCompatActivity {
             String selectedPerson = persons[position];
             String email = emails[position];
 
+
             this.selectedPerson = persons[position];
             this.email = email;
+            emp_id = employee_id[position];
 
             findActivity(selectedPerson);
             bottomSheetFlag = false;
             bottomSheetDialog.dismiss();
+            dialogFlag = true;
             delayedShowDialog();
         });
 
@@ -419,44 +426,44 @@ public class MainActivity extends AppCompatActivity {
         else if(result.contains("dana"))
         {
             String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.dana;
-            startVoiceAction(videoPath,"Dana AlSani");
+            startVoiceAction(videoPath,"Dana AlSani","e10000fd-942b-4c08-8d17-02732b96a2b8");
 
         }
         else if(result.contains("fatima"))
         {
             String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.fatima;
-            startVoiceAction(videoPath,"Fathima Farhana Mohammed");
+            startVoiceAction(videoPath,"Fathima Farhana Mohammed","9f94e975-5727-45ab-b155-b2672d1605df");
         }
         else if(result.contains("harish"))
         {
             String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.harish;
-            startVoiceAction(videoPath,"Harish Abdul Wahab");
+            startVoiceAction(videoPath,"Harish Abdul Wahab","f90ec33b-e85c-4dca-b434-2325c3385b6c");
         }
         else if(result.contains("jovian"))
         {
             String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.jovian;
-            startVoiceAction(videoPath,"Jovian D Cunha");
+            startVoiceAction(videoPath,"Jovian D Cunha","bbac478c-ff0f-40db-b285-35c8ac8c38ae");
 
         }
         else if(result.contains("rithin") || result.contains("nair"))
         {
             String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.ritin;
-            startVoiceAction(videoPath,"Ritin Nair");
+            startVoiceAction(videoPath,"Ritin Nair","1ed73db4-0f2f-43cf-8b46-c3bf3fa4b46c");
         }
         else if(result.contains("shahzad"))
         {
             String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.shezad;
-            startVoiceAction(videoPath,"Mohammed Shahzad");
+            startVoiceAction(videoPath,"Mohammed Shahzad","e9e5d5de-593f-48c0-b6bf-a3396d435c1d");
         }
         else if(result.contains("sukesh"))
         {
             String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.sukesh;
-            startVoiceAction(videoPath,"Sukesh Ramdas");
+            startVoiceAction(videoPath,"Sukesh Ramdas","6860896b-3d76-4216-a293-5238a39f753c");
         }
         else if(result.contains("vivek"))
         {
             String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.vivek;
-            startVoiceAction(videoPath,"Vivek Isaac");
+            startVoiceAction(videoPath,"Vivek Isaac","261daf56-0287-43fe-9c13-93f295a3c371");
         }
          else {
              startRecognition(intent);
@@ -464,43 +471,38 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void startVoiceAction(String videoPath,String name)
+    public void startVoiceAction(String videoPath,String name,String emp_id)
     {
         playVideo(videoPath);
         bottomSheetFlag = false;
         actionflag = true;
         bottomSheetDialog.dismiss();
         selectedPerson = name;
+        dialogFlag = true;
+        this.emp_id = emp_id;
         delayedShowDialog();
         setEmail(selectedPerson);
     }
 
     private void delayedShowDialog() {
-        Handler handler = new Handler(Looper.getMainLooper());
-
-        handler.postDelayed(new Runnable() {
+        video.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
-            public void run() {
-                showDialog();
+            public void onCompletion(MediaPlayer mediaPlayer) {
+                if(dialogFlag)
+                {
+                    showDialog();
+                    dialogFlag = false;
+                }
             }
-        }, 3500);
+        });
     }
 
-    private void sendEmail(String toEmail,String toMessage, String toName) {
-        String email = toEmail;
-        String subject = "Requesting a Meet";
-        String message = toMessage;
+    private void sendEmail(String employeeId,String guestId, String purposeOfVisit, String guestName) {
 
-        Intent emailIntent = new Intent(Intent.ACTION_SENDTO);
-        emailIntent.setData(Uri.parse("mailto:"));
+        apiCaller = new ApiCaller(this);
 
-        emailIntent.putExtra(Intent.EXTRA_EMAIL, toEmail);
-        emailIntent.putExtra(Intent.EXTRA_SUBJECT, subject);
-        emailIntent.putExtra(Intent.EXTRA_TEXT, message);
+        apiCaller.executeApiCall(employeeId, guestId, purposeOfVisit, guestName);
 
-        if (emailIntent.resolveActivity(getPackageManager()) != null) {
-            startActivity(emailIntent);
-        }
         intent.removeExtra(RecognizerIntent.EXTRA_PROMPT);
         initializeSpeechRecognizer();
     }
@@ -527,4 +529,34 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public void onApiCallComplete(String result) {
+        // Check the response and play the corresponding video
+        if (result != null && result.toLowerCase().contains("true")) {
+            String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.available;
+            playVideo(videoPath);
+        } else {
+            String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.notavailable;
+            playVideo(videoPath);
+        }
+        restartActivity();
+    }
+
+    private void restartActivity()
+    {
+        restartFlag = true;
+        if(restartFlag)
+        {
+            video.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                @Override
+                public void onCompletion(MediaPlayer mediaPlayer) {
+                   meet.setVisibility(View.VISIBLE);
+                   delivery.setVisibility(View.VISIBLE);
+                   name.setText("");
+                   purpose.setText("");
+                    restartFlag = false;
+                }
+            });
+        }
+    }
 }
