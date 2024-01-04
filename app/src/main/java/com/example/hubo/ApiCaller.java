@@ -1,5 +1,6 @@
 package com.example.hubo;
 
+import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
@@ -24,20 +25,20 @@ public class ApiCaller {
     }
 
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
-    private final ApiCallback callback;
 
-    // Constructor to initialize callback
-    public ApiCaller(ApiCallback callback) {
-        this.callback = callback;
+    private CountDownTimer apiTimeoutTimer;
+
+    public ApiCaller() {;
     }
 
     public void executeApiCall(String employeeId, String guestId, String purposeOfVisit, String guestName) {
+
         CompletableFuture.runAsync(() -> {
             try {
                 String result = performApiCall(employeeId, guestId, purposeOfVisit, guestName);
                 notifyCallback(result);
             } catch (Exception e) {
-                Log.e(TAG, "Error making API call: " + e.getMessage());
+                notifyCallback("error");
             }
         });
     }
@@ -104,9 +105,7 @@ public class ApiCaller {
 
     private void notifyCallback(String result) {
         mainHandler.post(() -> {
-            if (callback != null) {
-                callback.onApiCallComplete(result);
-            }
+           Log.d("success",result);
         });
     }
 }
