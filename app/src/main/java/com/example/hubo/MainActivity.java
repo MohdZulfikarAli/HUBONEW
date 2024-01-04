@@ -51,14 +51,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import android.app.AlertDialog;
 
-import org.eclipse.paho.client.mqttv3.IMqttActionListener;
-import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
-import org.eclipse.paho.client.mqttv3.IMqttToken;
-import org.eclipse.paho.client.mqttv3.MqttCallback;
-import org.eclipse.paho.client.mqttv3.MqttMessage;
-
-
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements MQTTManager.MQTTListener {
 
     Button meet;
 
@@ -126,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
 
     String emp_id;
 
-    private MqttHelper mqttHelper;
+    private MQTTManager mqttManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -198,61 +191,11 @@ public class MainActivity extends AppCompatActivity {
             ActivityCompat.requestPermissions(this, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS);
         }
 
-        MqttCallback mqttCallback = new MqttCallback() {
-            @Override
-            public void connectionLost(Throwable cause) {
-                // Handle connection loss
-                Log.d("MQTT", "Connection Lost");
-            }
-
-            @Override
-            public void messageArrived(String topic, MqttMessage message) throws Exception {
-                // Handle incoming messages
-                String payload = new String(message.getPayload());
-                onMessageArrived(payload);
-                Log.d("MQTT", "Received message on topic: " + topic + ", Message: " + payload);
-            }
-
-            @Override
-            public void deliveryComplete(IMqttDeliveryToken token) {
-                // Message delivery complete
-                Log.d("MQTT", "Delivery Complete");
-            }
-        };
-
-        mqttHelper = new MqttHelper(getApplicationContext(), mqttCallback);
-
-        // Connect to the MQTT broker
-        connectToBroker();
+        mqttManager = new MQTTManager(this);
+        mqttManager.setMQTTListener(this);
+        mqttManager.connectAndSubscribe("/user_data");
     }
 
-
-    private void connectToBroker() {
-        mqttHelper.connect(new IMqttActionListener() {
-            @Override
-            public void onSuccess(IMqttToken asyncActionToken) {
-                // Successfully connected to the broker, now subscribe to the topic
-                subscribeToTopic("/user_data");
-            }
-
-            @Override
-            public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
-                // Handle connection failure
-                Log.d("MQTT", "Connection failed");
-            }
-        });
-    }
-
-    private void subscribeToTopic(String topic) {
-        mqttHelper.subscribe(topic, 0);
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        // Disconnect from the broker when the activity is destroyed
-        mqttHelper.disconnect();
-    }
 
 
     private void resetActivityDelay() {
@@ -502,7 +445,7 @@ public class MainActivity extends AppCompatActivity {
 
                 if(!guestName.isEmpty() && !purposeOfVisit.isEmpty()) {
                     Handler handler = new Handler(Looper.getMainLooper());
-                    handler.postDelayed(() -> sendEmail(emp_id,"d3B83VBZFJCaprPr", purposeOfVisit, guestName), 2000);
+                    sendEmail(emp_id,"d3B83VBZFJCaprPr", purposeOfVisit, guestName);
                     emailFormAlert.dismiss();
                 }
                 else {
@@ -716,12 +659,12 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
-    public void onMessageArrived(String result) {
+    @Override
+    public void onMessageReceived(String topic, String message) {
 
         restartFlag = true;
 
-        if (result != null && result.toLowerCase().contains("accepted")) {
+        if (message != null && message.toLowerCase().contains("accepted")) {
             String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.available;
             playVideo(videoPath);
         } else {
@@ -729,5 +672,4 @@ public class MainActivity extends AppCompatActivity {
             playVideo(videoPath);
         }
     }
-
 }

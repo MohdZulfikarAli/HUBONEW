@@ -19,14 +19,7 @@ public class ApiCaller {
     private static final String API_URL = "https://hubo2.domainenroll.com/api/v1/alert-visit";
     private static final String TAG = "ApiCaller";
 
-    // Callback interface
-    public interface ApiCallback {
-        void onApiCallComplete(String result);
-    }
-
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
-
-    private CountDownTimer apiTimeoutTimer;
 
     public ApiCaller() {;
     }
@@ -105,7 +98,7 @@ public class ApiCaller {
 
     private void notifyCallback(String result) {
         mainHandler.post(() -> {
-           Log.d("success",result);
+
         });
     }
 }
