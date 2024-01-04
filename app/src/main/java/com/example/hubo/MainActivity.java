@@ -167,6 +167,7 @@ public class MainActivity extends AppCompatActivity implements MQTTManager.MQTTL
             public void onClick(View view) {
                 String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.meet;
                 playVideo(videoPath);
+                speechRetryCount = 0;
                 flag = true;
                 meet.setVisibility(View.GONE);
                 delivery.setVisibility(View.GONE);
@@ -191,9 +192,6 @@ public class MainActivity extends AppCompatActivity implements MQTTManager.MQTTL
             ActivityCompat.requestPermissions(this, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS);
         }
 
-        mqttManager = new MQTTManager(this);
-        mqttManager.setMQTTListener(this);
-        mqttManager.connectAndSubscribe("/user_data");
     }
 
 
@@ -313,7 +311,7 @@ public class MainActivity extends AppCompatActivity implements MQTTManager.MQTTL
 
         Preview preview = new Preview.Builder().build();
         CameraSelector cameraSelector = new CameraSelector.Builder()
-                .requireLensFacing(CameraSelector.LENS_FACING_FRONT)
+                .requireLensFacing(CameraSelector.LENS_FACING_BACK)
                 .build();
 
         FaceDetectorOptions options = new FaceDetectorOptions.Builder()
@@ -365,6 +363,8 @@ public class MainActivity extends AppCompatActivity implements MQTTManager.MQTTL
 
     public void showDialog() {
 
+        speechRetryCount = 0;
+
         // Create a custom dialog layout
         View dialogView = getLayoutInflater().inflate(R.layout.custom_dialog_box, null);
 
@@ -406,6 +406,8 @@ public class MainActivity extends AppCompatActivity implements MQTTManager.MQTTL
 
     public void showEmailDialog() {
 
+        speechRetryCount = 0;
+
         // Inflate the dialog view
         if (emailView.getParent() != null) {
             ((ViewGroup) emailView.getParent()).removeView(emailView);
@@ -444,7 +446,7 @@ public class MainActivity extends AppCompatActivity implements MQTTManager.MQTTL
                 playVideo(videoPath);
 
                 if(!guestName.isEmpty() && !purposeOfVisit.isEmpty()) {
-                    Handler handler = new Handler(Looper.getMainLooper());
+                    stopSpeechRecognition();
                     sendEmail(emp_id,"d3B83VBZFJCaprPr", purposeOfVisit, guestName);
                     emailFormAlert.dismiss();
                 }
@@ -640,8 +642,11 @@ public class MainActivity extends AppCompatActivity implements MQTTManager.MQTTL
     private void sendEmail(String employeeId,String guestId, String purposeOfVisit, String guestName) {
 
         apiCaller = new ApiCaller();
-
         apiCaller.executeApiCall(employeeId, guestId, purposeOfVisit, guestName);
+
+        mqttManager = new MQTTManager(this);
+        mqttManager.setMQTTListener(this);
+        mqttManager.connectAndSubscribe("/user_data");
     }
 
     public void playVideo(String path)
@@ -671,5 +676,6 @@ public class MainActivity extends AppCompatActivity implements MQTTManager.MQTTL
             String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.notavailable;
             playVideo(videoPath);
         }
+        mqttManager.disconnect();
     }
 }
