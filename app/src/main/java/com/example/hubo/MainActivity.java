@@ -14,7 +14,6 @@ import androidx.core.content.ContextCompat;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Handler;
-import android.os.Looper;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
 import android.content.Intent;
@@ -23,7 +22,6 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.speech.SpeechRecognizer;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
@@ -50,6 +48,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import android.app.AlertDialog;
+
+
 
 public class MainActivity extends AppCompatActivity implements MQTTManager.MQTTListener {
 
@@ -79,8 +79,6 @@ public class MainActivity extends AppCompatActivity implements MQTTManager.MQTTL
     TextInputEditText name;
     TextInputEditText purpose;
 
-    View emailView;
-
     boolean actionflag = false;
 
     SpeechRecognizer speechRecognizer;
@@ -95,6 +93,12 @@ public class MainActivity extends AppCompatActivity implements MQTTManager.MQTTL
 
     boolean restartFlag;
 
+    private boolean mTimerRunning = true;
+
+    AlertDialog emailFormAlert;
+
+    private boolean voiceFlag = true;
+
     private ListenableFuture<ProcessCameraProvider> cameraProviderFuture;
     private final AtomicBoolean isDetecting = new AtomicBoolean(false);
     private boolean isFaceDetected = false;
@@ -108,6 +112,17 @@ public class MainActivity extends AppCompatActivity implements MQTTManager.MQTTL
                 delivery.setVisibility(View.GONE);
                 video.setVisibility(View.GONE);
                 isDetecting.set(false);
+                if(bottomSheetDialog != null)
+                {
+                    bottomSheetFlag = false;
+                    bottomSheetDialog.dismiss();
+                }
+                if(yesOrNoDialog != null)
+                    yesOrNoDialog.dismiss();
+                if(emailFormAlert != null)
+                    emailFormAlert.dismiss();
+                stopSpeechRecognition();
+                voiceFlag = true;
             }
         }
     };
@@ -121,6 +136,8 @@ public class MainActivity extends AppCompatActivity implements MQTTManager.MQTTL
 
     private MQTTManager mqttManager;
 
+    private Handler mHandler;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -131,20 +148,23 @@ public class MainActivity extends AppCompatActivity implements MQTTManager.MQTTL
         video = findViewById(R.id.video);
         delivery = findViewById(R.id.delivery);
 
-        meet.setVisibility(View.GONE);
-        delivery.setVisibility(View.GONE);
+//        meet.setVisibility(View.GONE);
+//        delivery.setVisibility(View.GONE);
 
-        emailView = getLayoutInflater().inflate(R.layout.email_form, null);
+        String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.welcome;
+        playVideo(videoPath);
 
-        // Find views in the dialog layout
-        name = emailView.findViewById(R.id.name);
-        purpose = emailView.findViewById(R.id.purpose);
+        mHandler = new Handler();
 
         video.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mediaPlayer) {
 
-                startSpeechRecognition();
+                if(voiceFlag)
+                {
+                    startSpeechRecognition();
+                }
+                resetActivityDelay();
                 if (flag) {
                     showPersonListBottomSheet();
                     flag = false;
@@ -154,7 +174,6 @@ public class MainActivity extends AppCompatActivity implements MQTTManager.MQTTL
                     dialogFlag = false;
                 }
                 if (restartFlag) {
-                    resetActivityDelay();
                     name.setText("");
                     purpose.setText("");
                     restartFlag = false;
@@ -177,11 +196,11 @@ public class MainActivity extends AppCompatActivity implements MQTTManager.MQTTL
 
         delivery.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
+            public void onClick(View v)
+            {
                 isFaceDetected = false;
                 String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.delivery;
                 playVideo(videoPath);
-                resetActivityDelay();
             }
         });
 
@@ -191,10 +210,7 @@ public class MainActivity extends AppCompatActivity implements MQTTManager.MQTTL
         } else {
             ActivityCompat.requestPermissions(this, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS);
         }
-
     }
-
-
 
     private void resetActivityDelay() {
         activityDelayHandler.removeCallbacks(activityDelayRunnable);
@@ -296,7 +312,7 @@ public class MainActivity extends AppCompatActivity implements MQTTManager.MQTTL
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == REQUEST_CODE_PERMISSIONS) {
             if (allPermissionsGranted()) {
-//                startCamera();
+                startCamera();
             } else {
                 Toast.makeText(this, "Permissions not granted by the user.", Toast.LENGTH_SHORT).show();
                 finish();
@@ -408,17 +424,18 @@ public class MainActivity extends AppCompatActivity implements MQTTManager.MQTTL
 
         speechRetryCount = 0;
 
-        // Inflate the dialog view
-        if (emailView.getParent() != null) {
-            ((ViewGroup) emailView.getParent()).removeView(emailView);
-        }
+        View emailView = getLayoutInflater().inflate(R.layout.email_form, null);
+
+        name = emailView.findViewById(R.id.name);
+        purpose = emailView.findViewById(R.id.purpose);
+
 
         // Set up the AlertDialog
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setView(emailView);
 
         // Create the AlertDialog
-        AlertDialog emailFormAlert = builder.create();
+        emailFormAlert = builder.create();
 
         emailFormAlert.setCanceledOnTouchOutside(false);
 
@@ -446,6 +463,7 @@ public class MainActivity extends AppCompatActivity implements MQTTManager.MQTTL
                 playVideo(videoPath);
 
                 if(!guestName.isEmpty() && !purposeOfVisit.isEmpty()) {
+                    voiceFlag = false;
                     stopSpeechRecognition();
                     sendEmail(emp_id,"d3B83VBZFJCaprPr", purposeOfVisit, guestName);
                     emailFormAlert.dismiss();
@@ -652,10 +670,10 @@ public class MainActivity extends AppCompatActivity implements MQTTManager.MQTTL
     public void playVideo(String path)
     {
         stopSpeechRecognition();
+        activityDelayHandler.removeCallbacks(activityDelayRunnable);
         video.setVideoURI(Uri.parse(path));
         video.start();
     }
-
 
     private void hideKeyboard(TextInputEditText purpose) {
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -678,4 +696,5 @@ public class MainActivity extends AppCompatActivity implements MQTTManager.MQTTL
         }
         mqttManager.disconnect();
     }
+
 }
