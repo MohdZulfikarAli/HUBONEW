@@ -148,11 +148,8 @@ public class MainActivity extends AppCompatActivity implements MQTTManager.MQTTL
         video = findViewById(R.id.video);
         delivery = findViewById(R.id.delivery);
 
-//        meet.setVisibility(View.GONE);
-//        delivery.setVisibility(View.GONE);
-
-        String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.welcome;
-        playVideo(videoPath);
+        meet.setVisibility(View.GONE);
+        delivery.setVisibility(View.GONE);
 
         mHandler = new Handler();
 
