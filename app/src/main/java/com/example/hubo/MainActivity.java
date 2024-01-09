@@ -13,6 +13,8 @@ import androidx.core.content.ContextCompat;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.Bitmap;
+import android.media.Image;
 import android.os.Handler;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
@@ -22,11 +24,13 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.speech.SpeechRecognizer;
+import android.util.Base64;
+import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -41,6 +45,7 @@ import com.google.mlkit.vision.face.FaceDetection;
 import com.google.mlkit.vision.face.FaceDetector;
 import com.google.mlkit.vision.face.FaceDetectorOptions;
 
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Objects;
@@ -138,6 +143,10 @@ public class MainActivity extends AppCompatActivity implements MQTTManager.MQTTL
 
     private Handler mHandler;
 
+    String base64Image;
+
+    ImageView imageView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -156,7 +165,6 @@ public class MainActivity extends AppCompatActivity implements MQTTManager.MQTTL
         video.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mediaPlayer) {
-
                 if(voiceFlag)
                 {
                     startSpeechRecognition();
@@ -207,6 +215,10 @@ public class MainActivity extends AppCompatActivity implements MQTTManager.MQTTL
         } else {
             ActivityCompat.requestPermissions(this, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS);
         }
+
+        mqttManager = new MQTTManager(this);
+        mqttManager.setMQTTListener(this);
+        mqttManager.connectAndSubscribe("/user_data");
     }
 
     private void resetActivityDelay() {
@@ -324,7 +336,7 @@ public class MainActivity extends AppCompatActivity implements MQTTManager.MQTTL
 
         Preview preview = new Preview.Builder().build();
         CameraSelector cameraSelector = new CameraSelector.Builder()
-                .requireLensFacing(CameraSelector.LENS_FACING_BACK)
+                .requireLensFacing(CameraSelector.LENS_FACING_FRONT)
                 .build();
 
         FaceDetectorOptions options = new FaceDetectorOptions.Builder()
@@ -347,6 +359,14 @@ public class MainActivity extends AppCompatActivity implements MQTTManager.MQTTL
                 detector.process(image)
                         .addOnSuccessListener(faces -> {
                             if (!faces.isEmpty() && isDetecting.compareAndSet(false, true)) {
+
+                                ByteBuffer buffer = imageProxy.getPlanes()[0].getBuffer();
+                                byte[] bytes = new byte[buffer.remaining()];
+                                buffer.get(bytes);
+                                base64Image = Base64.encodeToString(bytes, Base64.DEFAULT);
+
+                                Log.d("imagecode",base64Image);
+
                                 String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.welcome;
                                 playVideo(videoPath);
                                 video.setVisibility(View.VISIBLE);
@@ -362,6 +382,7 @@ public class MainActivity extends AppCompatActivity implements MQTTManager.MQTTL
 
         cameraProvider.bindToLifecycle(this, cameraSelector, imageAnalysis, preview);
     }
+
 
     private void startCamera() {
         cameraProviderFuture.addListener(() -> {
@@ -658,10 +679,6 @@ public class MainActivity extends AppCompatActivity implements MQTTManager.MQTTL
 
         apiCaller = new ApiCaller();
         apiCaller.executeApiCall(employeeId, guestId, purposeOfVisit, guestName);
-
-        mqttManager = new MQTTManager(this);
-        mqttManager.setMQTTListener(this);
-        mqttManager.connectAndSubscribe("/user_data");
     }
 
     public void playVideo(String path)
