@@ -1,6 +1,7 @@
 package com.example.hubo;
 
 import android.content.Context;
+import android.util.Log;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.client.mqttv3.IMqttActionListener;
@@ -8,87 +9,86 @@ import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.IMqttToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
-import org.eclipse.paho.client.mqttv3.MqttException;
 
-public class MQTTManager {
-
-    private static final String BROKER_URI = "mqtt://sonic.domainenroll.com:1883";
-    private static final String CLIENT_ID = "r6zp7thdk34nd";
+public class MQTTClient {
+    private static final String BROKER_URI = "tcp://sonic.domainenroll.com:1883"; // Update with your MQTT broker URI
+    private static final String CLIENT_ID = "tr56fdsretge674fegyge";
+    private static final String TOPIC = "/user_data"; // Update with your desired MQTT topic
 
     private MqttAndroidClient mqttAndroidClient;
-    private MQTTListener mqttListener;
 
-    public interface MQTTListener {
-        void onMessageReceived(String topic, String message);
-    }
-    public void setMQTTListener(MQTTListener listener) {
-        mqttListener = listener;
+    private MQTTClientListener mqttclient;
+
+    public interface MQTTClientListener
+    {
+        public void onMessageReceived(String topic, String message);
     }
 
-    public MQTTManager(Context context) {
+    public MQTTClient(Context context, MQTTClientListener callback) {
+        mqttclient = callback;
         mqttAndroidClient = new MqttAndroidClient(context, BROKER_URI, CLIENT_ID);
-
         mqttAndroidClient.setCallback(new MqttCallback() {
             @Override
             public void connectionLost(Throwable cause) {
-                // Handle connection loss
+                // Handle connection lost
             }
 
             @Override
             public void messageArrived(String topic, org.eclipse.paho.client.mqttv3.MqttMessage message) throws Exception {
                 // Handle incoming messages
                 String payload = new String(message.getPayload());
-                // Do something with the payload
-                if (mqttListener != null) {
-                    mqttListener.onMessageReceived(topic, payload);
-                }
+                // Send the payload back to the MainActivity
+                mqttclient.onMessageReceived(topic,payload);
             }
 
             @Override
             public void deliveryComplete(IMqttDeliveryToken token) {
-                // Handle message delivery completion
+
             }
+
         });
     }
 
-    public void connectAndSubscribe(String topic) {
-        try {
-            MqttConnectOptions mqttConnectOptions = new MqttConnectOptions();
-            mqttConnectOptions.setCleanSession(true);
-            mqttConnectOptions.setUserName("domainenroll");
-            mqttConnectOptions.setPassword("de120467".toCharArray());
+    public void connect() {
+        MqttConnectOptions options = new MqttConnectOptions();
+        options.setAutomaticReconnect(true);
+        options.setUserName("domainenroll");
+        options.setPassword("de120467".toCharArray());
+        options.setCleanSession(false);
 
-            mqttAndroidClient.connect(mqttConnectOptions, null, new IMqttActionListener() {
+        try {
+            mqttAndroidClient.connect(options, null, new IMqttActionListener() {
                 @Override
                 public void onSuccess(IMqttToken asyncActionToken) {
-                    // Connection successful, subscribe to the topic
-                    subscribeToTopic(topic);
+                    Log.d("Connection", "Successful");
+                    subscribeToTopic();
                 }
 
                 @Override
                 public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
-                    // Handle connection failure
+                    Log.d("Connection", "unsuccessful"+exception);
                 }
             });
-        } catch (MqttException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    private void subscribeToTopic(String topic) {
+    private void subscribeToTopic() {
         try {
-            mqttAndroidClient.subscribe(topic, 0, null, new IMqttActionListener() {
+            mqttAndroidClient.subscribe(TOPIC, 0, null, new IMqttActionListener() {
                 @Override
                 public void onSuccess(IMqttToken asyncActionToken) {
-                    // Subscription successful
+                    // Handle successful subscription
+                    Log.d("Subscription", "subscription successful");
                 }
 
                 @Override
                 public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
-                    // Handle subscription failure
+                    Log.d("Subscription", "subscription unsuccessful");
                 }
             });
-        } catch (MqttException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -96,9 +96,11 @@ public class MQTTManager {
     public void disconnect() {
         try {
             mqttAndroidClient.disconnect();
-        } catch (MqttException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 }
+
+
 

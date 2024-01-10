@@ -11,9 +11,11 @@ import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import android.app.Application;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Handler;
+import android.os.Looper;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
 import android.content.Intent;
@@ -59,11 +61,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import android.app.AlertDialog;
 
+import org.eclipse.paho.client.mqttv3.IMqttActionListener;
+import org.eclipse.paho.client.mqttv3.IMqttToken;
+import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 
-public class MainActivity extends AppCompatActivity implements MQTTManager.MQTTListener, GuestIdAPI.GuestIdInterface {
+public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTClientListener, GuestIdAPI.GuestIdInterface {
 
     Button meet;
 
@@ -105,7 +110,6 @@ public class MainActivity extends AppCompatActivity implements MQTTManager.MQTTL
 
     boolean restartFlag;
 
-    private boolean mTimerRunning = true;
 
     AlertDialog emailFormAlert;
 
@@ -146,15 +150,19 @@ public class MainActivity extends AppCompatActivity implements MQTTManager.MQTTL
 
     String emp_id;
 
-    private MQTTManager mqttManager;
-
-    private Handler mHandler;
-
     String base64Image;
 
-    ImageView imageView;
-
     String guestId;
+
+    private MQTTClient mqttClient = new MQTTClient(this,this);
+
+    boolean mqttflag;
+
+    boolean resetflag;
+
+    private Handler handler;
+
+    private Runnable runnable;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -169,8 +177,6 @@ public class MainActivity extends AppCompatActivity implements MQTTManager.MQTTL
         meet.setVisibility(View.GONE);
         delivery.setVisibility(View.GONE);
 
-        mHandler = new Handler();
-
         video.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mediaPlayer) {
@@ -178,7 +184,10 @@ public class MainActivity extends AppCompatActivity implements MQTTManager.MQTTL
                 {
                     startSpeechRecognition();
                 }
-                resetActivityDelay();
+                if(resetflag)
+                {
+                    resetActivityDelay();
+                }
                 if (flag) {
                     showPersonListBottomSheet();
                     flag = false;
@@ -187,10 +196,9 @@ public class MainActivity extends AppCompatActivity implements MQTTManager.MQTTL
                     showDialog();
                     dialogFlag = false;
                 }
-                if (restartFlag) {
-                    name.setText("");
-                    purpose.setText("");
-                    restartFlag = false;
+                if(mqttflag)
+                {
+                    mqttClient.connect();
                 }
             }
         });
@@ -225,9 +233,6 @@ public class MainActivity extends AppCompatActivity implements MQTTManager.MQTTL
             ActivityCompat.requestPermissions(this, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS);
         }
 
-        mqttManager = new MQTTManager(this);
-        mqttManager.setMQTTListener(this);
-        mqttManager.connectAndSubscribe("/user_data");
     }
 
     private void resetActivityDelay() {
@@ -374,6 +379,8 @@ public class MainActivity extends AppCompatActivity implements MQTTManager.MQTTL
                                 buffer.get(bytes);
                                 base64Image = Base64.encodeToString(bytes, Base64.DEFAULT);
 
+                                resetflag = true;
+
 
                                 String singleLineString = base64Image.replaceAll("\n", " ");
 
@@ -382,6 +389,7 @@ public class MainActivity extends AppCompatActivity implements MQTTManager.MQTTL
                                     GuestIdAPI getGuestId = new GuestIdAPI(this);
                                     getGuestId.retriveGuestId("",singleLineString);
                                 }
+
 //                                Log.d("imagecode",singleLineString);
 //                                writeToFile(this, "example.txt", singleLineString);
 
@@ -501,9 +509,13 @@ public class MainActivity extends AppCompatActivity implements MQTTManager.MQTTL
 
                 hideKeyboard(purpose);
 
+                resetflag = false;
 
                 String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.checking;
                 playVideo(videoPath);
+
+
+                mqttClient.connect();
 
                 if(!guestName.isEmpty() && !purposeOfVisit.isEmpty()) {
                     voiceFlag = false;
@@ -702,8 +714,18 @@ public class MainActivity extends AppCompatActivity implements MQTTManager.MQTTL
 
     private void sendEmail(String employeeId,String guestId, String purposeOfVisit, String guestName) {
 
+        name.setText("");
+        purpose.setText("");
+
         apiCaller = new ApiCaller();
         apiCaller.executeApiCall(employeeId, guestId, purposeOfVisit, guestName);
+
+        handler = new Handler(Looper.getMainLooper());
+
+        runnable = () -> resetActivityDelay();
+
+        // Schedule the runnable to be executed after the delay
+        handler.postDelayed(runnable, 30000);
     }
 
     public void playVideo(String path)
@@ -721,20 +743,6 @@ public class MainActivity extends AppCompatActivity implements MQTTManager.MQTTL
         }
     }
 
-    @Override
-    public void onMessageReceived(String topic, String message) {
-
-        restartFlag = true;
-
-        if (message != null && message.toLowerCase().contains("accepted")) {
-            String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.available;
-            playVideo(videoPath);
-        } else {
-            String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.notavailable;
-            playVideo(videoPath);
-        }
-        mqttManager.disconnect();
-    }
 
     @Override
     public void onApiResult(String result) {
@@ -766,6 +774,30 @@ public class MainActivity extends AppCompatActivity implements MQTTManager.MQTTL
             e.printStackTrace();
         }
     }
+
+    @Override
+    public void onMessageReceived(String topic, String message) {
+
+        resetflag = true;
+
+        handler.removeCallbacksAndMessages(runnable);
+
+        activityDelayHandler.removeCallbacks(activityDelayRunnable);
+
+        Log.d("MqttMesaage",message);
+        if (message != null && message.toLowerCase().contains("accepted")) {
+            String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.available;
+            playVideo(videoPath);
+        } else {
+            String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.notavailable;
+            playVideo(videoPath);
+        }
+
+        mqttClient.disconnect();
+    }
+
+
+
 //
 //    public static void logFileContent(Context context, String fileName) {
 //        try {
