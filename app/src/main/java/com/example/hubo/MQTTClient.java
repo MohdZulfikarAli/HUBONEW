@@ -3,7 +3,8 @@ package com.example.hubo;
 import android.content.Context;
 import android.util.Log;
 
-import org.eclipse.paho.android.service.MqttAndroidClient;
+import info.mqtt.android.service.Ack;
+import info.mqtt.android.service.MqttAndroidClient;
 import org.eclipse.paho.client.mqttv3.IMqttActionListener;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.IMqttToken;
@@ -26,7 +27,10 @@ public class MQTTClient {
 
     public MQTTClient(Context context, MQTTClientListener callback) {
         mqttclient = callback;
-        mqttAndroidClient = new MqttAndroidClient(context, BROKER_URI, CLIENT_ID);
+
+        mqttAndroidClient = new MqttAndroidClient(context, BROKER_URI, CLIENT_ID, Ack.AUTO_ACK);
+
+
         mqttAndroidClient.setCallback(new MqttCallback() {
             @Override
             public void connectionLost(Throwable cause) {

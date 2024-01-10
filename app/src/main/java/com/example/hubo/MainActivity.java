@@ -11,7 +11,6 @@ import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import android.app.Application;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Handler;
@@ -61,10 +60,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import android.app.AlertDialog;
 
-import org.eclipse.paho.client.mqttv3.IMqttActionListener;
-import org.eclipse.paho.client.mqttv3.IMqttToken;
-import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
-import org.json.JSONException;
+import org.eclipse.paho.android.service.BuildConfig;
 import org.json.JSONObject;
 
 
@@ -107,8 +103,6 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
     AlertDialog yesOrNoDialog;
 
     private ApiCaller apiCaller;
-
-    boolean restartFlag;
 
 
     AlertDialog emailFormAlert;
@@ -181,6 +175,7 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
 
         meet.setVisibility(View.GONE);
         delivery.setVisibility(View.GONE);
+
 
         video.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override

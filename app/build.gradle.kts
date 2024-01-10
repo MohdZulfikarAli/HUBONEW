@@ -29,10 +29,12 @@ android {
 }
 
 dependencies {
-
-    implementation ("org.eclipse.paho:org.eclipse.paho.android.service:1.1.1")
+    
     implementation ("org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.5")
-    implementation ("org.eclipse.paho:org.eclipse.paho.android.service:1.1.1")
+    implementation ("androidx.room:room-runtime:2.4.0")
+    implementation ("com.jakewharton.timber:timber:5.0.1")
+    implementation(files("libs/serviceLibrary-release.aar"))
+    implementation ("androidx.legacy:legacy-support-v4:1.0.0")
     implementation("androidx.camera:camera-camera2:1.3.1")
     implementation("androidx.camera:camera-lifecycle:1.3.1")
     implementation("androidx.camera:camera-view:1.3.1")
@@ -59,3 +61,4 @@ dependencies {
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
 }
+
