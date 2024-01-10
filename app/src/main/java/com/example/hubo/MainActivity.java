@@ -13,8 +13,6 @@ import androidx.core.content.ContextCompat;
 
 import android.content.Context;
 import android.content.DialogInterface;
-import android.graphics.Bitmap;
-import android.media.Image;
 import android.os.Handler;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
@@ -45,6 +43,13 @@ import com.google.mlkit.vision.face.FaceDetection;
 import com.google.mlkit.vision.face.FaceDetector;
 import com.google.mlkit.vision.face.FaceDetectorOptions;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Locale;
@@ -54,9 +59,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import android.app.AlertDialog;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 
 
-public class MainActivity extends AppCompatActivity implements MQTTManager.MQTTListener {
+public class MainActivity extends AppCompatActivity implements MQTTManager.MQTTListener, GuestIdAPI.GuestIdInterface {
 
     Button meet;
 
@@ -146,6 +153,8 @@ public class MainActivity extends AppCompatActivity implements MQTTManager.MQTTL
     String base64Image;
 
     ImageView imageView;
+
+    String guestId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -365,7 +374,23 @@ public class MainActivity extends AppCompatActivity implements MQTTManager.MQTTL
                                 buffer.get(bytes);
                                 base64Image = Base64.encodeToString(bytes, Base64.DEFAULT);
 
-                                Log.d("imagecode",base64Image);
+
+                                String singleLineString = base64Image.replaceAll("\n", " ");
+
+                                if(base64Image != null)
+                                {
+                                    GuestIdAPI getGuestId = new GuestIdAPI(this);
+                                    getGuestId.retriveGuestId("",singleLineString);
+                                }
+//                                Log.d("imagecode",singleLineString);
+//                                writeToFile(this, "example.txt", singleLineString);
+
+//                                File file = new File(this.getFilesDir(), "example.txt");
+//                                String filePath = file.getAbsolutePath();
+//
+//                                Log.d("filepath",filePath);
+//
+//                                logFileContent(this,"example.txt");
 
                                 String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.welcome;
                                 playVideo(videoPath);
@@ -483,7 +508,7 @@ public class MainActivity extends AppCompatActivity implements MQTTManager.MQTTL
                 if(!guestName.isEmpty() && !purposeOfVisit.isEmpty()) {
                     voiceFlag = false;
                     stopSpeechRecognition();
-                    sendEmail(emp_id,"d3B83VBZFJCaprPr", purposeOfVisit, guestName);
+                    sendEmail(emp_id,guestId, purposeOfVisit, guestName);
                     emailFormAlert.dismiss();
                 }
                 else {
@@ -711,4 +736,57 @@ public class MainActivity extends AppCompatActivity implements MQTTManager.MQTTL
         mqttManager.disconnect();
     }
 
+    @Override
+    public void onApiResult(String result) {
+
+        try {
+            JSONObject jsonResponse = new JSONObject(result);
+
+            guestId = jsonResponse.getJSONObject("data")
+                    .getJSONObject("guest")
+                    .getString("guest_id");
+
+            // Now you can use the guestId as needed in your activity
+            Log.d("result object", "Received guest_id: " + jsonResponse);
+            Log.d("result object", "Received guest_id: " + guestId);
+        } catch (Exception e) {
+            Log.e("TAG", "Error parsing JSON response", e);
+        }
+
+    }
+
+    public static void writeToFile(Context context, String fileName, String data) {
+        try {
+            FileOutputStream fos = context.openFileOutput(fileName, Context.MODE_PRIVATE);
+            OutputStreamWriter osw = new OutputStreamWriter(fos);
+            osw.write(data);
+            osw.close();
+            fos.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+//
+//    public static void logFileContent(Context context, String fileName) {
+//        try {
+//            FileInputStream fis = context.openFileInput(fileName);
+//            InputStreamReader isr = new InputStreamReader(fis);
+//            BufferedReader br = new BufferedReader(isr);
+//
+//            StringBuilder content = new StringBuilder();
+//            String line;
+//            while ((line = br.readLine()) != null) {
+//                content.append(line).append("\n");
+//            }
+//
+//            br.close();
+//            isr.close();
+//            fis.close();
+//
+//            // Log the content to Logcat
+//            Log.d("FileContent", content.toString());
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//    }
 }
