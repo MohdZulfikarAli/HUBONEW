@@ -115,6 +115,8 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
 
     private boolean voiceFlag = true;
 
+    boolean mqttflag;
+
     private ListenableFuture<ProcessCameraProvider> cameraProviderFuture;
     private final AtomicBoolean isDetecting = new AtomicBoolean(false);
     private boolean isFaceDetected = false;
@@ -139,6 +141,9 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
                     emailFormAlert.dismiss();
                 stopSpeechRecognition();
                 voiceFlag = true;
+                mqttflag = false;
+                if(mqttClient != null)
+                    mqttClient.disconnect();
             }
         }
     };
@@ -156,7 +161,7 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
 
     private MQTTClient mqttClient = new MQTTClient(this,this);
 
-    boolean mqttflag;
+
 
     boolean resetflag;
 
@@ -199,6 +204,7 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
                 if(mqttflag)
                 {
                     mqttClient.connect();
+                    mqttflag = false;
                 }
             }
         });
@@ -511,11 +517,11 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
 
                 resetflag = false;
 
+                mqttflag = true;
+
                 String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.checking;
                 playVideo(videoPath);
 
-
-                mqttClient.connect();
 
                 if(!guestName.isEmpty() && !purposeOfVisit.isEmpty()) {
                     voiceFlag = false;
@@ -779,6 +785,8 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
     public void onMessageReceived(String topic, String message) {
 
         resetflag = true;
+
+        mqttflag = false;
 
         handler.removeCallbacksAndMessages(runnable);
 
