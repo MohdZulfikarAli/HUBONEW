@@ -313,7 +313,7 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
 
 
     private void retrySpeechRecognition() {
-        if (speechRetryCount < 3) {
+        if (speechRetryCount < 7) {
             speechRetryCount++;
             startSpeechRecognition();
         } else {
@@ -700,6 +700,10 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
             String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.vivek;
             startVoiceAction(videoPath,"Vivek Isaac","261daf56-0287-43fe-9c13-93f295a3c371");
         }
+        else {
+            startSpeechRecognition();
+            speechRetryCount++;
+         }
 
     }
 
