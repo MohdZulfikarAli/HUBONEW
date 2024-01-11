@@ -351,7 +351,7 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
 
         Preview preview = new Preview.Builder().build();
         CameraSelector cameraSelector = new CameraSelector.Builder()
-                .requireLensFacing(CameraSelector.LENS_FACING_FRONT)
+                .requireLensFacing(CameraSelector.LENS_FACING_BACK)
                 .build();
 
         FaceDetectorOptions options = new FaceDetectorOptions.Builder()
