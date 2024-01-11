@@ -357,6 +357,7 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
         FaceDetectorOptions options = new FaceDetectorOptions.Builder()
                 .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_FAST)
                 .build();
+
         FaceDetector detector = FaceDetection.getClient(options);
 
         ImageAnalysis imageAnalysis = new ImageAnalysis.Builder()
