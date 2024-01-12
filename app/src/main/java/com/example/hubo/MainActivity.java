@@ -29,7 +29,6 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -44,12 +43,8 @@ import com.google.mlkit.vision.face.FaceDetection;
 import com.google.mlkit.vision.face.FaceDetector;
 import com.google.mlkit.vision.face.FaceDetectorOptions;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -60,7 +55,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import android.app.AlertDialog;
 
-import org.eclipse.paho.android.service.BuildConfig;
 import org.json.JSONObject;
 
 
@@ -111,6 +105,8 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
 
     boolean mqttflag;
 
+    boolean yesNoFlag;
+
     private ListenableFuture<ProcessCameraProvider> cameraProviderFuture;
     private final AtomicBoolean isDetecting = new AtomicBoolean(false);
     private boolean isFaceDetected = false;
@@ -153,7 +149,7 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
 
     String guestId;
 
-    private MQTTClient mqttClient = new MQTTClient(this,this);
+    private final MQTTClient mqttClient = new MQTTClient(this,this);
 
 
 
@@ -201,6 +197,11 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
                 {
                     mqttClient.connect();
                     mqttflag = false;
+                }
+                if(yesNoFlag)
+                {
+                    showYesOrNoDialog();
+                    yesNoFlag = false;
                 }
             }
         });
@@ -631,7 +632,7 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
     }
     public void findVoiceAction(String action)
     {
-        String result = action.toLowerCase().trim();
+         String result = action.toLowerCase().trim();
          if(result.contains("meet")) {
              String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.meet;
              playVideo(videoPath);
@@ -788,17 +789,54 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
 
         activityDelayHandler.removeCallbacks(activityDelayRunnable);
 
-        Log.d("MqttMesaage",message);
         if (message != null && message.toLowerCase().contains("accepted")) {
             String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.available;
             playVideo(videoPath);
         } else {
             String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.notavailable;
             playVideo(videoPath);
-            flag = true;
-            voiceFlag = true;
+            yesNoFlag = true;
         }
         mqttClient.disconnect();
+    }
+
+    private void showYesOrNoDialog()
+    {
+        View dialogView = getLayoutInflater().inflate(R.layout.yesorno_dialog, null);
+
+        // Set the message
+        TextView messageTextView = dialogView.findViewById(R.id.dialog_message);
+        messageTextView.setText("Would you like to meet someone else?");
+
+
+        // Create the AlertDialog
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setView(dialogView);
+
+
+        AlertDialog dialog = builder.create();
+        dialog.setCanceledOnTouchOutside(false);
+
+        Button btnYes = dialogView.findViewById(R.id.yesbtn);
+        Button btnNo = dialogView.findViewById(R.id.nobtn);
+        btnYes.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.dismiss();
+                meet.performClick();
+            }
+        });
+
+        btnNo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.dismiss();
+                String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.thankyou;
+                playVideo(videoPath);
+            }
+        });
+
+        dialog.show();
     }
 
 }
