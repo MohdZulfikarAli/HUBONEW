@@ -465,6 +465,7 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
             public void onClick(View view) {
                 yesOrNoDialog.dismiss();
                 actionflag = false;
+                submit = true;
                 showEmailDialog();
             }
         });
@@ -676,6 +677,7 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
          else if(submit && result.contains("submit"))
          {
              btnSubmit.performClick();
+             submit = false;
          }
         else if(result.contains("alsani") || result.contains("dana"))
         {
