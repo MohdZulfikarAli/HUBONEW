@@ -183,6 +183,7 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
                 if(voiceFlag)
                 {
                     startSpeechRecognition();
+                    speechRetryCount = 0;
                 }
                 if(resetflag)
                 {
@@ -209,7 +210,6 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
             public void onClick(View view) {
                 String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.meet;
                 playVideo(videoPath);
-                speechRetryCount = 0;
                 flag = true;
                 meet.setVisibility(View.GONE);
                 delivery.setVisibility(View.GONE);
@@ -432,8 +432,6 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
 
     public void showDialog() {
 
-        speechRetryCount = 0;
-
         // Create a custom dialog layout
         View dialogView = getLayoutInflater().inflate(R.layout.custom_dialog_box, null);
 
@@ -474,8 +472,6 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
 
 
     public void showEmailDialog() {
-
-        speechRetryCount = 0;
 
         View emailView = getLayoutInflater().inflate(R.layout.email_form, null);
 
@@ -646,7 +642,7 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
                  yesOrNoDialog.dismiss();
              meet.performClick();
          }
-         else if(actionflag && result.contains("yes"))
+         else if(actionflag && (result.contains("yes") || result.contains("s")))
          {
              buttonYes.performClick();
          }
@@ -658,23 +654,23 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
          {
              btnSubmit.performClick();
          }
-        else if(result.contains("dana"))
+        else if(result.contains("alsani") || result.contains("dana"))
         {
             String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.dana;
             startVoiceAction(videoPath,"Dana AlSani","e10000fd-942b-4c08-8d17-02732b96a2b8");
 
         }
-        else if(result.contains("fatima"))
+        else if(result.contains("fatima") ||  result.contains("farhana"))
         {
             String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.fatima;
             startVoiceAction(videoPath,"Fathima Farhana Mohammed","9f94e975-5727-45ab-b155-b2672d1605df");
         }
-        else if(result.contains("harish"))
+        else if(result.contains("harish") || result.contains("abdul") || result.contains("wahab"))
         {
             String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.harish;
             startVoiceAction(videoPath,"Harish Abdul Wahab","f90ec33b-e85c-4dca-b434-2325c3385b6c");
         }
-        else if(result.contains("jovian"))
+        else if(result.contains("jovian") || result.contains("cunha"))
         {
             String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.jovian;
             startVoiceAction(videoPath,"Jovian D Cunha","bbac478c-ff0f-40db-b285-35c8ac8c38ae");
@@ -685,17 +681,17 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
             String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.ritin;
             startVoiceAction(videoPath,"Ritin Nair","1ed73db4-0f2f-43cf-8b46-c3bf3fa4b46c");
         }
-        else if(result.contains("shahzad"))
+        else if(result.contains("shahzad") || result.contains("mohammed"))
         {
             String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.shezad;
             startVoiceAction(videoPath,"Mohammed Shahzad","e9e5d5de-593f-48c0-b6bf-a3396d435c1d");
         }
-        else if(result.contains("sukesh"))
+        else if(result.contains("sukesh") || result.contains("ramdas"))
         {
             String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.sukesh;
             startVoiceAction(videoPath,"Sukesh Ramdas","6860896b-3d76-4216-a293-5238a39f753c");
         }
-        else if(result.contains("vivek"))
+        else if(result.contains("vivek") || result.contains("isaac"))
         {
             String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.vivek;
             startVoiceAction(videoPath,"Vivek Isaac","261daf56-0287-43fe-9c13-93f295a3c371");
@@ -799,34 +795,10 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
         } else {
             String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.notavailable;
             playVideo(videoPath);
+            flag = true;
+            voiceFlag = true;
         }
-
         mqttClient.disconnect();
     }
 
-
-
-//
-//    public static void logFileContent(Context context, String fileName) {
-//        try {
-//            FileInputStream fis = context.openFileInput(fileName);
-//            InputStreamReader isr = new InputStreamReader(fis);
-//            BufferedReader br = new BufferedReader(isr);
-//
-//            StringBuilder content = new StringBuilder();
-//            String line;
-//            while ((line = br.readLine()) != null) {
-//                content.append(line).append("\n");
-//            }
-//
-//            br.close();
-//            isr.close();
-//            fis.close();
-//
-//            // Log the content to Logcat
-//            Log.d("FileContent", content.toString());
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//    }
 }
