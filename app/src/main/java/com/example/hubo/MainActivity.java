@@ -86,7 +86,7 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
     TextInputEditText name;
     TextInputEditText purpose;
 
-    boolean actionflag = false;
+    boolean actionflag;
 
     SpeechRecognizer speechRecognizer;
 
@@ -106,6 +106,14 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
     boolean mqttflag;
 
     boolean yesNoFlag;
+
+    Button btnYes;
+
+    Button btnNo;
+
+    boolean toggle;
+
+    boolean submit;
 
     private ListenableFuture<ProcessCameraProvider> cameraProviderFuture;
     private final AtomicBoolean isDetecting = new AtomicBoolean(false);
@@ -148,6 +156,7 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
     String base64Image;
 
     String guestId;
+
 
     private final MQTTClient mqttClient = new MQTTClient(this,this);
 
@@ -455,6 +464,7 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
             @Override
             public void onClick(View view) {
                 yesOrNoDialog.dismiss();
+                actionflag = false;
                 showEmailDialog();
             }
         });
@@ -463,6 +473,7 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
             @Override
             public void onClick(View view) {
                 yesOrNoDialog.dismiss();
+                actionflag = false;
                 meet.performClick();
             }
         });
@@ -643,15 +654,26 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
                  yesOrNoDialog.dismiss();
              meet.performClick();
          }
-         else if(actionflag && (result.contains("yes") || result.contains("s")))
+         else if((result.contains("yes") || result.contains("s")))
          {
-             buttonYes.performClick();
+             if(actionflag)
+             {
+                 buttonYes.performClick();
+             }
+             else if(toggle){
+                 btnYes.performClick();
+             }
          }
-         else if(actionflag && result.contains("no"))
+         else if(result.contains("no"))
          {
-             buttonNo.performClick();
+             if(actionflag) {
+                 buttonNo.performClick();
+             }
+             else if(toggle){
+                 btnNo.performClick();
+             }
          }
-         else if(result.contains("submit"))
+         else if(submit && result.contains("submit"))
          {
              btnSubmit.performClick();
          }
@@ -793,15 +815,17 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
             String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.available;
             playVideo(videoPath);
         } else {
+            yesNoFlag = true;
+            voiceFlag = true;
             String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.notavailable;
             playVideo(videoPath);
-            yesNoFlag = true;
         }
         mqttClient.disconnect();
     }
 
     private void showYesOrNoDialog()
     {
+        toggle = true;
         View dialogView = getLayoutInflater().inflate(R.layout.yesorno_dialog, null);
 
         // Set the message
@@ -817,12 +841,13 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
         AlertDialog dialog = builder.create();
         dialog.setCanceledOnTouchOutside(false);
 
-        Button btnYes = dialogView.findViewById(R.id.yesbtn);
-        Button btnNo = dialogView.findViewById(R.id.nobtn);
+        btnYes = dialogView.findViewById(R.id.yesbtn);
+        btnNo = dialogView.findViewById(R.id.nobtn);
         btnYes.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 dialog.dismiss();
+                toggle = false;
                 meet.performClick();
             }
         });
@@ -831,6 +856,8 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
             @Override
             public void onClick(View view) {
                 dialog.dismiss();
+                voiceFlag = false;
+                toggle = false;
                 String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.thankyou;
                 playVideo(videoPath);
             }
