@@ -101,7 +101,7 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
 
     AlertDialog emailFormAlert;
 
-    private boolean voiceFlag = true;
+    private boolean voiceFlag;
 
     boolean mqttflag;
 
@@ -113,7 +113,7 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
 
     boolean toggle;
 
-    boolean submit;
+    boolean submitFlag;
 
     private ListenableFuture<ProcessCameraProvider> cameraProviderFuture;
     private final AtomicBoolean isDetecting = new AtomicBoolean(false);
@@ -138,7 +138,6 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
                 if(emailFormAlert != null)
                     emailFormAlert.dismiss();
                 stopSpeechRecognition();
-                voiceFlag = true;
                 mqttflag = false;
                 if(mqttClient != null)
                     mqttClient.disconnect();
@@ -386,6 +385,7 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
                         .addOnSuccessListener(faces -> {
                             if (!faces.isEmpty() && isDetecting.compareAndSet(false, true)) {
 
+                                voiceFlag = true;
                                 ByteBuffer buffer = imageProxy.getPlanes()[0].getBuffer();
                                 byte[] bytes = new byte[buffer.remaining()];
                                 buffer.get(bytes);
@@ -465,7 +465,7 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
             public void onClick(View view) {
                 yesOrNoDialog.dismiss();
                 actionflag = false;
-                submit = true;
+                submitFlag = true;
                 showEmailDialog();
             }
         });
@@ -523,6 +523,8 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
                 resetflag = false;
 
                 mqttflag = true;
+
+                submitFlag = false;
 
                 String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.checking;
                 playVideo(videoPath);
@@ -655,7 +657,7 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
                  yesOrNoDialog.dismiss();
              meet.performClick();
          }
-         else if((result.contains("yes") || result.contains("s")))
+         else if(result.contains("yes") || result.contains("s"))
          {
              if(actionflag)
              {
@@ -674,10 +676,9 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
                  btnNo.performClick();
              }
          }
-         else if(submit && result.contains("submit"))
+         else if(submitFlag && result.contains("submit"))
          {
              btnSubmit.performClick();
-             submit = false;
          }
         else if(result.contains("alsani") || result.contains("dana"))
         {
