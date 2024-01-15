@@ -659,24 +659,19 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
                  yesOrNoDialog.dismiss();
              meet.performClick();
          }
-         else if(result.contains("yes") || result.contains("s"))
+         else if(actionflag && (result.contains("yes") || result.contains("s")))
          {
-             if(actionflag)
-             {
-                 buttonYes.performClick();
-             }
-             else if(toggle){
-                 btnYes.performClick();
-             }
+             buttonYes.performClick();
          }
-         else if(result.contains("no"))
+         else if(toggle && (result.contains("yes") || result.contains("s"))){
+             btnYes.performClick();
+         }
+         else if(actionflag && result.contains("no"))
          {
-             if(actionflag) {
-                 buttonNo.performClick();
-             }
-             else if(toggle){
-                 btnNo.performClick();
-             }
+             buttonNo.performClick();
+         }
+         else if(toggle && result.contains("no")){
+             btnNo.performClick();
          }
          else if(result.contains("submit") && submitFlag)
          {
