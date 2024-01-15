@@ -198,6 +198,7 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
                     flag = false;
                 }
                 if (dialogFlag) {
+                    actionflag = true;
                     showDialog();
                     dialogFlag = false;
                 }
@@ -208,6 +209,7 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
                 }
                 if(yesNoFlag)
                 {
+                    toggle = true;
                     showYesOrNoDialog();
                     yesNoFlag = false;
                 }
@@ -733,7 +735,6 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
     {
         playVideo(videoPath);
         bottomSheetFlag = false;
-        actionflag = true;
         bottomSheetDialog.dismiss();
         selectedPerson = name;
         dialogFlag = true;
@@ -828,7 +829,6 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
 
     private void showYesOrNoDialog()
     {
-        toggle = true;
         View dialogView = getLayoutInflater().inflate(R.layout.yesorno_dialog, null);
 
         // Set the message
