@@ -37,6 +37,7 @@ public class GuestIdAPI{
         CompletableFuture.runAsync(() -> {
             try {
                 String result = performApiCall(employeeId, guestImage);
+                Log.d("guestId",result);
                 notifyCallback(result);
             } catch (Exception e) {
                 notifyCallback("error");

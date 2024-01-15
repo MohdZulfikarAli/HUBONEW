@@ -465,7 +465,6 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
             public void onClick(View view) {
                 yesOrNoDialog.dismiss();
                 actionflag = false;
-                submitFlag = true;
                 showEmailDialog();
             }
         });
@@ -485,6 +484,8 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
 
 
     public void showEmailDialog() {
+
+        submitFlag = true;
 
         View emailView = getLayoutInflater().inflate(R.layout.email_form, null);
 
@@ -522,15 +523,14 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
 
                 resetflag = false;
 
-                mqttflag = true;
-
-                submitFlag = false;
 
                 String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.checking;
                 playVideo(videoPath);
 
 
                 if(!guestName.isEmpty() && !purposeOfVisit.isEmpty()) {
+                    mqttflag = true;
+                    submitFlag = false;
                     voiceFlag = false;
                     stopSpeechRecognition();
                     sendEmail(emp_id,guestId, purposeOfVisit, guestName);
@@ -676,7 +676,7 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
                  btnNo.performClick();
              }
          }
-         else if(submitFlag && result.contains("submit"))
+         else if(result.contains("submit") && submitFlag)
          {
              btnSubmit.performClick();
          }
@@ -781,7 +781,7 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
             guestId = jsonResponse.getJSONObject("data")
                     .getJSONObject("guest")
                     .getString("guest_id");
-
+            Log.d("result object", "Received guest_id: " + result);
             // Now you can use the guestId as needed in your activity
             Log.d("result object", "Received guest_id: " + jsonResponse);
             Log.d("result object", "Received guest_id: " + guestId);

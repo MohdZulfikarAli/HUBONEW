@@ -30,6 +30,7 @@ public class ApiCaller {
             try {
                 String result = performApiCall(employeeId, guestId, purposeOfVisit, guestName);
                 notifyCallback(result);
+                Log.d("email status",result);
             } catch (Exception e) {
                 notifyCallback("error");
             }
