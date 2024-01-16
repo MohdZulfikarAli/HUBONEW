@@ -167,6 +167,8 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
 
     private Runnable runnable;
 
+    private boolean emailFlag;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -221,6 +223,7 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
             public void onClick(View view) {
                 String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.meet;
                 playVideo(videoPath);
+                emailFlag = true;
                 flag = true;
                 meet.setVisibility(View.GONE);
                 delivery.setVisibility(View.GONE);
@@ -235,6 +238,9 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
                 isFaceDetected = false;
                 String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.delivery;
                 playVideo(videoPath);
+                meet.setVisibility(View.GONE);
+                delivery.setVisibility(View.GONE);
+                flag = true;
             }
         });
 
@@ -267,6 +273,7 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
                 if (matches != null && !matches.isEmpty()) {
                     String result = matches.get(0).toLowerCase();
                     Log.d("Generated Speech",result);
+                    Toast.makeText(MainActivity.this,result,Toast.LENGTH_SHORT).show();
                     findVoiceAction(result);
                 } else {
                     retrySpeechRecognition();
@@ -302,6 +309,14 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
 
             @Override
             public void onPartialResults(Bundle partialResults) {
+
+                ArrayList<String> matches = partialResults.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
+                if (matches != null && !matches.isEmpty()) {
+                    String result = matches.get(0).toLowerCase();
+                    Log.d("Partial Result",result);
+                    Toast.makeText(MainActivity.this,result,Toast.LENGTH_SHORT).show();
+//                    findVoiceAction(result);
+                }
             }
 
             @Override
@@ -468,7 +483,15 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
             public void onClick(View view) {
                 yesOrNoDialog.dismiss();
                 actionflag = false;
-                showEmailDialog();
+                if(emailFlag)
+                {
+                    showEmailDialog();
+                }
+                else {
+                    stopSpeechRecognition();
+                    mqttClient.connect();
+                    sendEmail(emp_id,guestId, "delivery", "guestName");
+                }
             }
         });
 
@@ -477,7 +500,13 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
             public void onClick(View view) {
                 yesOrNoDialog.dismiss();
                 actionflag = false;
-                meet.performClick();
+                if(emailFlag)
+                {
+                    meet.performClick();
+                }
+                else {
+                    resetActivityDelay();
+                }
             }
         });
 
@@ -660,6 +689,16 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
                  yesOrNoDialog.dismiss();
              meet.performClick();
          }
+         else if(result.contains("delivery")) {
+            String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.delivery;
+            playVideo(videoPath);
+            bottomSheetFlag = false;
+            if(bottomSheetDialog != null)
+                bottomSheetDialog.dismiss();
+            if(yesOrNoDialog != null)
+                yesOrNoDialog.dismiss();
+            delivery.performClick();
+         }
          else if(actionflag && (result.contains("yes") || result.contains("s")))
          {
              buttonYes.performClick();
@@ -739,9 +778,6 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
 
     private void sendEmail(String employeeId,String guestId, String purposeOfVisit, String guestName) {
 
-        name.setText("");
-        purpose.setText("");
-
         apiCaller = new ApiCaller();
         apiCaller.executeApiCall(employeeId, guestId, purposeOfVisit, guestName);
 
@@ -750,7 +786,7 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
         runnable = () -> resetActivityDelay();
 
         // Schedule the runnable to be executed after the delay
-        handler.postDelayed(runnable, 30000);
+        handler.postDelayed(runnable, 60000);
     }
 
     public void playVideo(String path)
@@ -812,6 +848,7 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
         activityDelayHandler.removeCallbacks(activityDelayRunnable);
 
         if (message != null && message.toLowerCase().contains("accepted")) {
+            voiceFlag = false;
             String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.available;
             playVideo(videoPath);
         } else {
@@ -847,7 +884,13 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
             public void onClick(View view) {
                 dialog.dismiss();
                 toggle = false;
-                meet.performClick();
+                if(emailFlag)
+                {
+                    meet.performClick();
+                }
+                else {
+                    delivery.performClick();
+                }
             }
         });
 
