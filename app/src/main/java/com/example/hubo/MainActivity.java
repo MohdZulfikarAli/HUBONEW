@@ -505,6 +505,8 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
                     meet.performClick();
                 }
                 else {
+                    stopSpeechRecognition();
+                    video.setVisibility(View.GONE);
                     resetActivityDelay();
                 }
             }
