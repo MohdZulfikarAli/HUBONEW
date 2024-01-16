@@ -286,6 +286,7 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
 
             @Override
             public void onError(int error) {
+                Log.e("Speech Recognition Error", "Error code: " + error);
                 retrySpeechRecognition();
             }
 
@@ -488,7 +489,9 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
                     showEmailDialog();
                 }
                 else {
-                    stopSpeechRecognition();
+                    voiceFlag = false;
+                    String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.checking;
+                    playVideo(videoPath);
                     mqttClient.connect();
                     sendEmail(emp_id,guestId, "delivery", "guestName");
                 }
