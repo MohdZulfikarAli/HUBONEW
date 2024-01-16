@@ -266,6 +266,7 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
                 ArrayList<String> matches = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
                 if (matches != null && !matches.isEmpty()) {
                     String result = matches.get(0).toLowerCase();
+                    Log.d("Generated Speech",result);
                     findVoiceAction(result);
                 } else {
                     retrySpeechRecognition();
