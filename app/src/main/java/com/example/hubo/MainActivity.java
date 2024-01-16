@@ -490,6 +490,7 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
             public void onClick(View view) {
                 yesOrNoDialog.dismiss();
                 actionflag = false;
+                dialogFlag = false;
                 if(emailFlag)
                 {
                     showEmailDialog();
@@ -509,6 +510,7 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
             public void onClick(View view) {
                 yesOrNoDialog.dismiss();
                 actionflag = false;
+                dialogFlag = false;
                 if(emailFlag)
                 {
                     meet.performClick();
@@ -638,6 +640,10 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
             if(emailFlag)
             {
                 findActivity(selectedPerson);
+            }
+            else {
+                showDialog();
+                actionflag = true;
             }
             bottomSheetFlag = false;
             bottomSheetDialog.dismiss();
