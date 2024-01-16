@@ -32,14 +32,11 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
-        btnLogin.performClick();
     }
     public void onLoginClick(View view) {
         String user = username.getText().toString().trim();
         String pass = password.getText().toString().trim();
 
-        user = "zulfikar";
-        pass = "123456";
 
         // Simple validation (you should implement proper validation)
         if (user.equals("zulfikar") && pass.equals("123456")) {
