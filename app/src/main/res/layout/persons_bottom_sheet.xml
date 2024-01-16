@@ -12,13 +12,12 @@
         android:background="@android:color/darker_gray" />
 
     <TextView
-        android:id="@+id/textView"
+        android:id="@+id/txt"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:fontFamily="monospace"
         android:paddingStart="20dp"
         android:paddingTop="20dp"
-        android:text="Who would you like to meet?"
         android:textSize="20sp" />
 
      <ListView

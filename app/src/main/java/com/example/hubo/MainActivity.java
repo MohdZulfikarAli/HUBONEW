@@ -466,7 +466,13 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
 
         // Set the message
         TextView messageTextView = dialogView.findViewById(R.id.dialog_message);
-        messageTextView.setText("Are you sure you want to meet "+showSelectedPerson()+"?");
+        if(emailFlag)
+        {
+            messageTextView.setText("Are you sure you want to meet "+showSelectedPerson()+"?");
+        }
+        else {
+            messageTextView.setText("Are you sure you want to deliver?");
+        }
 
 
         // Create the AlertDialog
@@ -594,6 +600,16 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
         View bottomSheetView = getLayoutInflater().inflate(R.layout.persons_bottom_sheet, null);
         bottomSheetDialog.setContentView(bottomSheetView);
 
+        TextView text = bottomSheetView.findViewById(R.id.txt);
+
+        if(emailFlag){
+              text.setText("Who would you like to meet?");
+        }
+        else{
+            text.setText("Who do you have delivery for?");
+        }
+
+
         bottomSheetDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
             @Override
             public void onDismiss(DialogInterface dialogInterface) {
@@ -619,7 +635,10 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
             this.email = email;
             emp_id = employee_id[position];
 
-            findActivity(selectedPerson);
+            if(emailFlag)
+            {
+                findActivity(selectedPerson);
+            }
             bottomSheetFlag = false;
             bottomSheetDialog.dismiss();
             dialogFlag = true;
@@ -773,11 +792,20 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
 
     public void startVoiceAction(String videoPath,String name,String emp_id)
     {
-        playVideo(videoPath);
+        if(emailFlag)
+        {
+            playVideo(videoPath);
+            dialogFlag = true;
+        }
+        else
+        {
+            showDialog();
+            startSpeechRecognition();
+            actionflag = true;
+        }
         bottomSheetFlag = false;
         bottomSheetDialog.dismiss();
         selectedPerson = name;
-        dialogFlag = true;
         this.emp_id = emp_id;
     }
 
