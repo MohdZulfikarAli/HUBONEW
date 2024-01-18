@@ -119,6 +119,8 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
     private final AtomicBoolean isDetecting = new AtomicBoolean(false);
     private boolean isFaceDetected = false;
 
+    AlertDialog dialogYesOrNo;
+
     private final Handler activityDelayHandler = new Handler();
     private final Runnable activityDelayRunnable = new Runnable() {
         @Override
@@ -137,6 +139,8 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
                     yesOrNoDialog.dismiss();
                 if(emailFormAlert != null)
                     emailFormAlert.dismiss();
+                if(dialogYesOrNo != null)
+                    dialogYesOrNo.dismiss();
                 stopSpeechRecognition();
                 mqttflag = false;
                 emailFlag = false;
@@ -895,15 +899,15 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
         builder.setView(dialogView);
 
 
-        AlertDialog dialog = builder.create();
-        dialog.setCanceledOnTouchOutside(false);
+        dialogYesOrNo = builder.create();
+        dialogYesOrNo.setCanceledOnTouchOutside(false);
 
         btnYes = dialogView.findViewById(R.id.yesbtn);
         btnNo = dialogView.findViewById(R.id.nobtn);
         btnYes.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                dialog.dismiss();
+                dialogYesOrNo.dismiss();
                 toggle = false;
                 if(emailFlag)
                 {
@@ -918,7 +922,7 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
         btnNo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                dialog.dismiss();
+                dialogYesOrNo.dismiss();
                 voiceFlag = false;
                 toggle = false;
                 String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.thankyou;
@@ -926,7 +930,7 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
             }
         });
 
-        dialog.show();
+        dialogYesOrNo.show();
     }
 
     private void generateGuestId(String base64)
