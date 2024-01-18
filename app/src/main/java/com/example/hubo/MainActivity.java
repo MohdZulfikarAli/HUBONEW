@@ -171,6 +171,8 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
 
     private boolean emailFlag;
 
+    private String base64;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -414,24 +416,12 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
 
                                 resetflag = true;
 
+                                base64 = base64Image.replaceAll("\n", " ");
 
-                                String singleLineString = base64Image.replaceAll("\n", " ");
-
-                                if(base64Image != null)
+                                if(base64 != "")
                                 {
-                                    GuestIdAPI getGuestId = new GuestIdAPI(this);
-                                    getGuestId.retriveGuestId("",singleLineString);
+                                    generateGuestId(base64);
                                 }
-
-//                                Log.d("imagecode",singleLineString);
-//                                writeToFile(this, "example.txt", singleLineString);
-
-//                                File file = new File(this.getFilesDir(), "example.txt");
-//                                String filePath = file.getAbsolutePath();
-//
-//                                Log.d("filepath",filePath);
-//
-//                                logFileContent(this,"example.txt");
 
                                 String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.welcome;
                                 playVideo(videoPath);
@@ -865,17 +855,6 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
 
     }
 
-    public static void writeToFile(Context context, String fileName, String data) {
-        try {
-            FileOutputStream fos = context.openFileOutput(fileName, Context.MODE_PRIVATE);
-            OutputStreamWriter osw = new OutputStreamWriter(fos);
-            osw.write(data);
-            osw.close();
-            fos.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 
     @Override
     public void onMessageReceived(String topic, String message) {
@@ -897,6 +876,7 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
             voiceFlag = true;
             String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.notavailable;
             playVideo(videoPath);
+            generateGuestId(base64);
         }
         mqttClient.disconnect();
     }
@@ -947,6 +927,12 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
         });
 
         dialog.show();
+    }
+
+    private void generateGuestId(String base64)
+    {
+        GuestIdAPI getGuestId = new GuestIdAPI(this);
+        getGuestId.retriveGuestId("",base64);
     }
 
 }
