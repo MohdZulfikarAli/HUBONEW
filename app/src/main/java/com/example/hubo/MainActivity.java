@@ -139,6 +139,8 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
                     emailFormAlert.dismiss();
                 stopSpeechRecognition();
                 mqttflag = false;
+                emailFlag = false;
+
                 if(mqttClient != null)
                     mqttClient.disconnect();
             }
@@ -729,18 +731,18 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
                 yesOrNoDialog.dismiss();
             delivery.performClick();
          }
-         else if(actionflag && (result.contains("yes") || result.contains("s")))
+         else if(actionflag && (result.contains("confirm") || result.contains("confurm")))
          {
              buttonYes.performClick();
          }
-         else if(toggle && (result.contains("yes") || result.contains("s"))){
+         else if(toggle && (result.contains("confirm") || result.contains("confurm"))){
              btnYes.performClick();
          }
-         else if(actionflag && result.contains("no"))
+         else if(actionflag && result.contains("decline"))
          {
              buttonNo.performClick();
          }
-         else if(toggle && result.contains("no")){
+         else if(toggle && result.contains("decline")){
              btnNo.performClick();
          }
          else if(result.contains("submit") && submitFlag)
