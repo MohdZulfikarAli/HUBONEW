@@ -121,6 +121,8 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
 
     AlertDialog dialogYesOrNo;
 
+    boolean startFlag;
+
     private final Handler activityDelayHandler = new Handler();
     private final Runnable activityDelayRunnable = new Runnable() {
         @Override
@@ -161,6 +163,8 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
     String base64Image;
 
     String guestId;
+
+    boolean voiceAction = false;
 
 
     private final MQTTClient mqttClient = new MQTTClient(this,this);
@@ -233,6 +237,7 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
                 playVideo(videoPath);
                 emailFlag = true;
                 flag = true;
+                voiceAction = true;
                 meet.setVisibility(View.GONE);
                 delivery.setVisibility(View.GONE);
                 isFaceDetected = false;
@@ -249,6 +254,7 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
                 meet.setVisibility(View.GONE);
                 delivery.setVisibility(View.GONE);
                 flag = true;
+                voiceAction = true;
             }
         });
 
@@ -413,6 +419,7 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
                             if (!faces.isEmpty() && isDetecting.compareAndSet(false, true)) {
 
                                 voiceFlag = true;
+                                startFlag = true;
                                 ByteBuffer buffer = imageProxy.getPlanes()[0].getBuffer();
                                 byte[] bytes = new byte[buffer.remaining()];
                                 buffer.get(bytes);
@@ -705,7 +712,8 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
     public void findVoiceAction(String action)
     {
          String result = action.toLowerCase().trim();
-         if(result.contains("meet")) {
+         if(startFlag && result.contains("meet")) {
+             startFlag = false;
              String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.meet;
              playVideo(videoPath);
              bottomSheetFlag = false;
@@ -715,7 +723,8 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
                  yesOrNoDialog.dismiss();
              meet.performClick();
          }
-         else if(result.contains("delivery")) {
+         else if(startFlag && result.contains("delivery")) {
+             startFlag = false;
             String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.delivery;
             playVideo(videoPath);
             bottomSheetFlag = false;
@@ -743,44 +752,44 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
          {
              btnSubmit.performClick();
          }
-        else if(result.contains("alsani") || result.contains("dana"))
+        else if(voiceAction && (result.contains("alsani") || result.contains("dana")))
         {
             String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.dana;
             startVoiceAction(videoPath,"Dana AlSani","e10000fd-942b-4c08-8d17-02732b96a2b8");
 
         }
-        else if(result.contains("fatima") ||  result.contains("farhana"))
+        else if(voiceAction && (result.contains("fatima") ||  result.contains("farhana")))
         {
             String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.fatima;
             startVoiceAction(videoPath,"Fathima Farhana Mohammed","9f94e975-5727-45ab-b155-b2672d1605df");
         }
-        else if(result.contains("harish") || result.contains("abdul") || result.contains("wahab"))
+        else if(voiceAction && (result.contains("harish") || result.contains("abdul") || result.contains("wahab")))
         {
             String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.harish;
             startVoiceAction(videoPath,"Harish Abdul Wahab","f90ec33b-e85c-4dca-b434-2325c3385b6c");
         }
-        else if(result.contains("jovian") || result.contains("cunha"))
+        else if(voiceAction && (result.contains("jovian") || result.contains("cunha")))
         {
             String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.jovian;
             startVoiceAction(videoPath,"Jovian D Cunha","bbac478c-ff0f-40db-b285-35c8ac8c38ae");
 
         }
-        else if(result.contains("rithin") || result.contains("nair"))
+        else if(voiceAction && (result.contains("rithin") || result.contains("nair")))
         {
             String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.ritin;
             startVoiceAction(videoPath,"Ritin Nair","1ed73db4-0f2f-43cf-8b46-c3bf3fa4b46c");
         }
-        else if(result.contains("shahzad") || result.contains("mohammed"))
+        else if(voiceAction && (result.contains("shahzad") || result.contains("mohammed")))
         {
             String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.shezad;
             startVoiceAction(videoPath,"Mohammed Shahzad","e9e5d5de-593f-48c0-b6bf-a3396d435c1d");
         }
-        else if(result.contains("sukesh") || result.contains("ramdas"))
+        else if(voiceAction && (result.contains("sukesh") || result.contains("ramdas")))
         {
             String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.sukesh;
             startVoiceAction(videoPath,"Sukesh Ramdas","6860896b-3d76-4216-a293-5238a39f753c");
         }
-        else if(result.contains("vivek") || result.contains("isaac"))
+        else if(voiceAction && (result.contains("vivek") || result.contains("isaac")))
         {
             String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.vivek;
             startVoiceAction(videoPath,"Vivek Isaac","261daf56-0287-43fe-9c13-93f295a3c371");
@@ -805,6 +814,7 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
             startSpeechRecognition();
             actionflag = true;
         }
+        voiceAction = false;
         bottomSheetFlag = false;
         bottomSheetDialog.dismiss();
         selectedPerson = name;
