@@ -555,9 +555,11 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
 
         emailFormAlert.setCanceledOnTouchOutside(false);
 
+        handler = new Handler(Looper.getMainLooper());
+
         runnable = () -> resetActivityDelay();
 
-        handler.postDelayed(runnable, 60000);
+        handler.postDelayed(runnable, 30000);
 
 
         String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.form;
@@ -580,13 +582,10 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
 
                 resetflag = false;
 
-
-                String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.checking;
-                playVideo(videoPath);
-
-
                 if(!guestName.isEmpty() && !purposeOfVisit.isEmpty()) {
                     handler.removeCallbacksAndMessages(runnable);
+                    String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.checking;
+                    playVideo(videoPath);
                     mqttflag = true;
                     submitFlag = false;
                     voiceFlag = false;
@@ -595,7 +594,7 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
                     emailFormAlert.dismiss();
                 }
                 else {
-                    videoPath = "android.resource://" + getPackageName() + "/" + R.raw.form;
+                    String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.form;
                     playVideo(videoPath);
                 }
             }
