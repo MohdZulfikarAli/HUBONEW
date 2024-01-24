@@ -161,7 +161,7 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
     String[] persons = {"Dana AlSani", "Fathima Farhana Mohammed", "Harish Abdul Wahab", "Jovian D Cunha", "Ritin Nair", "Mohammed Shahzad", "Sukesh Ramdas", "Vivek Isaac"};
     String[] emails = {"danaalsani@devlacus.com", "fatimafarhanamohammed@devlacus.com", "harishabdulwahab@devlacus.com", "joviandcunha@devlacus.com", "ritinnair@devlacus.com", "mohammedshahzad@devlacus.com", "sukeshramdas@devlacus.com", "vivekisaac@devlacus.com"};
 
-    String[] employee_id = {"e10000fd-942b-4c08-8d17-02732b96a2b8", "9f94e975-5727-45ab-b155-b2672d1605df", "f90ec33b-e85c-4dca-b434-2325c3385b6c", "bbac478c-ff0f-40db-b285-35c8ac8c38ae", "1ed73db4-0f2f-43cf-8b46-c3bf3fa4b46c", "e9e5d5de-593f-48c0-b6bf-a3396d435c1d", "6860896b-3d76-4216-a293-5238a39f753c", "261daf56-0287-43fe-9c13-93f295a3c371"};
+    String[] employee_id = {"e10000fd-942b-4c08-8d17-02732b96a2b8", "9f94e975-5727-45ab-b155-b2672d1605df", "c2ace602-a377-4cb8-b998-77e47e273a5b", "bbac478c-ff0f-40db-b285-35c8ac8c38ae", "1ed73db4-0f2f-43cf-8b46-c3bf3fa4b46c", "e9e5d5de-593f-48c0-b6bf-a3396d435c1d", "6860896b-3d76-4216-a293-5238a39f753c", "261daf56-0287-43fe-9c13-93f295a3c371"};
 
     String emp_id;
 
@@ -743,25 +743,25 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
                 yesOrNoDialog.dismiss();
             delivery.performClick();
          }
-         else if(actionflag && (result.contains("yes") || result.contains("s")))
+         else if(actionflag && (result.contains("yes") || result.contains("es") || result.contains("yeas")))
          {
              buttonYes.performClick();
          }
-         else if(toggle && (result.contains("yes") || result.contains("s"))){
+         else if(toggle && (result.contains("yes") || result.contains("es") || result.contains("yeas"))){
              btnYes.performClick();
          }
-         else if(actionflag && (result.contains("no") || result.contains("n")))
+         else if(actionflag && (result.contains("no") || result.contains("noo")))
          {
              buttonNo.performClick();
          }
-         else if(toggle && (result.contains("no") || result.contains("n"))){
+         else if(toggle && (result.contains("no") || result.contains("noo"))){
              btnNo.performClick();
          }
          else if(result.contains("submit") && submitFlag)
          {
              btnSubmit.performClick();
          }
-        else if(voiceAction && (result.contains("alsani") || result.contains("dana")))
+        else if(voiceAction && (result.contains("alsani") || result.contains("dana") || result.contains("diana") || result.contains("sunny") || result.contains("donald sunny")))
         {
             String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.dana;
             startVoiceAction(videoPath,"Dana AlSani","e10000fd-942b-4c08-8d17-02732b96a2b8");
@@ -772,18 +772,18 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
             String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.fatima;
             startVoiceAction(videoPath,"Fathima Farhana Mohammed","9f94e975-5727-45ab-b155-b2672d1605df");
         }
-        else if(voiceAction && (result.contains("harish") || result.contains("abdul") || result.contains("wahab")))
+        else if(voiceAction && (result.contains("harish") || result.contains("abdul") || result.contains("wahab") || result.contains("harry")))
         {
             String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.harish;
             startVoiceAction(videoPath,"Harish Abdul Wahab","f90ec33b-e85c-4dca-b434-2325c3385b6c");
         }
-        else if(voiceAction && (result.contains("jovian") || result.contains("cunha")))
+        else if(voiceAction && (result.contains("jovian") || result.contains("cunha") || result.contains("job in") || result.contains("jov") || result.contains("jo")))
         {
             String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.jovian;
             startVoiceAction(videoPath,"Jovian D Cunha","bbac478c-ff0f-40db-b285-35c8ac8c38ae");
 
         }
-        else if(voiceAction && (result.contains("rithin") || result.contains("nair")))
+        else if(voiceAction && (result.contains("rithin") || result.contains("nair") || result.contains("ripin") || result.contains("nitin") || result.contains("nayar") || result.contains("pratinid") || result.contains("ratan") || result.contains("ratinaya")))
         {
             String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.ritin;
             startVoiceAction(videoPath,"Ritin Nair","1ed73db4-0f2f-43cf-8b46-c3bf3fa4b46c");
@@ -793,7 +793,7 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
             String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.shezad;
             startVoiceAction(videoPath,"Mohammed Shahzad","e9e5d5de-593f-48c0-b6bf-a3396d435c1d");
         }
-        else if(voiceAction && (result.contains("sukesh") || result.contains("ramdas")))
+        else if(voiceAction && (result.contains("sukesh") || result.contains("ramdas") || result.contains("suggest") || result.contains("sugesh")))
         {
             String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.sukesh;
             startVoiceAction(videoPath,"Sukesh Ramdas","6860896b-3d76-4216-a293-5238a39f753c");
