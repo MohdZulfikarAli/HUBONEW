@@ -559,7 +559,7 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
 
         runnable = () -> resetActivityDelay();
 
-        handler.postDelayed(runnable, 30000);
+        handler.postDelayed(runnable, 15000);
 
 
         String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.form;
@@ -723,8 +723,6 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
          String result = action.toLowerCase().trim();
          if(startFlag && result.contains("meet")) {
              startFlag = false;
-             String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.meet;
-             playVideo(videoPath);
              bottomSheetFlag = false;
              if(bottomSheetDialog != null)
                  bottomSheetDialog.dismiss();
@@ -734,8 +732,6 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
          }
          else if(startFlag && result.contains("delivery")) {
              startFlag = false;
-            String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.delivery;
-            playVideo(videoPath);
             bottomSheetFlag = false;
             if(bottomSheetDialog != null)
                 bottomSheetDialog.dismiss();
@@ -840,7 +836,7 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
         runnable = () -> resetActivityDelay();
 
         // Schedule the runnable to be executed after the delay
-        handler.postDelayed(runnable, 60000);
+        handler.postDelayed(runnable, 30000);
     }
 
     public void playVideo(String path)
