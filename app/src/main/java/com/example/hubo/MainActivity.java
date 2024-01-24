@@ -555,6 +555,10 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
 
         emailFormAlert.setCanceledOnTouchOutside(false);
 
+        runnable = () -> resetActivityDelay();
+
+        handler.postDelayed(runnable, 60000);
+
 
         String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.form;
         playVideo(videoPath);
@@ -582,6 +586,7 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
 
 
                 if(!guestName.isEmpty() && !purposeOfVisit.isEmpty()) {
+                    handler.removeCallbacksAndMessages(runnable);
                     mqttflag = true;
                     submitFlag = false;
                     voiceFlag = false;
