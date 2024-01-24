@@ -146,6 +146,11 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
                 stopSpeechRecognition();
                 mqttflag = false;
                 emailFlag = false;
+                actionflag = false;
+                toggle = false;
+                submitFlag = false;
+                voiceAction = false;
+                startFlag = false;
 
                 if(mqttClient != null)
                     mqttClient.disconnect();
@@ -153,7 +158,7 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
         }
     };
 
-    String[] persons = {"Dana AlSani", "Fatima Farhana Mohammed", "Harish Abdul Wahab", "Jovian D Cunha", "Ritin Nair", "Mohammed Shahzad", "Sukesh Ramdas", "Vivek Isaac"};
+    String[] persons = {"Dana AlSani", "Fathima Farhana Mohammed", "Harish Abdul Wahab", "Jovian D Cunha", "Ritin Nair", "Mohammed Shahzad", "Sukesh Ramdas", "Vivek Isaac"};
     String[] emails = {"danaalsani@devlacus.com", "fatimafarhanamohammed@devlacus.com", "harishabdulwahab@devlacus.com", "joviandcunha@devlacus.com", "ritinnair@devlacus.com", "mohammedshahzad@devlacus.com", "sukeshramdas@devlacus.com", "vivekisaac@devlacus.com"};
 
     String[] employee_id = {"e10000fd-942b-4c08-8d17-02732b96a2b8", "9f94e975-5727-45ab-b155-b2672d1605df", "f90ec33b-e85c-4dca-b434-2325c3385b6c", "bbac478c-ff0f-40db-b285-35c8ac8c38ae", "1ed73db4-0f2f-43cf-8b46-c3bf3fa4b46c", "e9e5d5de-593f-48c0-b6bf-a3396d435c1d", "6860896b-3d76-4216-a293-5238a39f753c", "261daf56-0287-43fe-9c13-93f295a3c371"};
@@ -672,7 +677,7 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
             playVideo(videoPath);
 
         }
-        else if(result.contains("fatima"))
+        else if(result.contains("fathima"))
         {
             String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.fatima;
             playVideo(videoPath);
@@ -734,18 +739,18 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
                 yesOrNoDialog.dismiss();
             delivery.performClick();
          }
-         else if(actionflag && (result.contains("confirm") || result.contains("confurm")))
+         else if(actionflag && (result.contains("yes") || result.contains("s")))
          {
              buttonYes.performClick();
          }
-         else if(toggle && (result.contains("confirm") || result.contains("confurm"))){
+         else if(toggle && (result.contains("yes") || result.contains("s"))){
              btnYes.performClick();
          }
-         else if(actionflag && result.contains("decline"))
+         else if(actionflag && (result.contains("no") || result.contains("n")))
          {
              buttonNo.performClick();
          }
-         else if(toggle && result.contains("decline")){
+         else if(toggle && (result.contains("no") || result.contains("n"))){
              btnNo.performClick();
          }
          else if(result.contains("submit") && submitFlag)

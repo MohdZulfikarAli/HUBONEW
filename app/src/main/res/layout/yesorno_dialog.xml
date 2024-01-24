@@ -26,7 +26,7 @@
             android:background="@drawable/rounded_buttons"
             android:backgroundTint="@color/design_default_color_background"
             android:padding="16dp"
-            android:text="Confirm" />
+            android:text="Yes" />
 
         <Button
             android:id="@+id/nobtn"
@@ -35,9 +35,7 @@
             android:layout_marginEnd="30dp"
             android:background="@drawable/rounded_buttons"
             android:padding="16dp"
-            android:text="Decline" />
+            android:text="No" />
 
     </LinearLayout>
-
-
 </LinearLayout>
