@@ -722,9 +722,8 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
     {
          String result = action.toLowerCase().trim();
          if(startFlag && result.contains("meet")) {
+             Log.d("Control Message","control");
              startFlag = false;
-             String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.meet;
-             playVideo(videoPath);
              bottomSheetFlag = false;
              if(bottomSheetDialog != null)
                  bottomSheetDialog.dismiss();
@@ -733,9 +732,8 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
              meet.performClick();
          }
          else if(startFlag && result.contains("delivery")) {
+
              startFlag = false;
-            String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.delivery;
-            playVideo(videoPath);
             bottomSheetFlag = false;
             if(bottomSheetDialog != null)
                 bottomSheetDialog.dismiss();
@@ -750,7 +748,7 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
          else if(toggle && (result.contains("yes") || result.contains("s"))){
              btnYes.performClick();
          }
-         else if(actionflag && (result.contains("no") || result.contains("n")))
+         else if(actionflag && (result.contains("no") || result.contains("na")))
          {
              buttonNo.performClick();
          }
