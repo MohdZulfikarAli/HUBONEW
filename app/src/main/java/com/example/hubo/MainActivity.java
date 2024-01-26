@@ -123,6 +123,8 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
 
     boolean startFlag;
 
+    boolean resetactvity;
+
     private final Handler activityDelayHandler = new Handler();
     private final Runnable activityDelayRunnable = new Runnable() {
         @Override
@@ -151,6 +153,7 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
                 submitFlag = false;
                 voiceAction = false;
                 startFlag = false;
+                resetactvity = false;
 
                 if(mqttClient != null)
                     mqttClient.disconnect();
@@ -211,6 +214,10 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
                 if(resetflag)
                 {
                     resetActivityDelay();
+                }
+                if(resetactvity)
+                {
+                    resetActivity();
                 }
                 if (flag) {
                     showPersonListBottomSheet();
@@ -275,6 +282,11 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
     private void resetActivityDelay() {
         activityDelayHandler.removeCallbacks(activityDelayRunnable);
         activityDelayHandler.postDelayed(activityDelayRunnable, 30000);
+    }
+
+    private void resetActivity() {
+        activityDelayHandler.removeCallbacks(activityDelayRunnable);
+        activityDelayRunnable.run();
     }
 
     private void startSpeechRecognition() {
@@ -888,6 +900,7 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
 
         if (message != null && message.toLowerCase().contains("accepted")) {
             voiceFlag = false;
+            resetactvity = true;
             String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.available;
             playVideo(videoPath);
         } else {
@@ -940,6 +953,7 @@ public class MainActivity extends AppCompatActivity implements MQTTClient.MQTTCl
                 dialogYesOrNo.dismiss();
                 voiceFlag = false;
                 toggle = false;
+                resetactvity = true;
                 String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.thankyou;
                 playVideo(videoPath);
             }
